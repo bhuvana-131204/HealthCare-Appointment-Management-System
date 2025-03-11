@@ -1,7 +1,7 @@
 package com.availabilitySchedule.model;
 
 import java.sql.Date;
-import java.util.List;
+//import java.util.List;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -26,15 +26,12 @@ public class Availability {
     @Column(name = "date", nullable = false)
     private Date date;
 
-    // If relevant doctor details (e.g., doctor name or ID) are needed, you could add fields like these:
+    
     @Column(name = "doctor_name", nullable = true)
     private String doctorName;
 
     @Column(name = "doctor_id", nullable = true)
-    private Long doctorId; // Optional, if you still want to track a doctor identifier
+    private Long doctorId; 
 
-	public void setTimeSlots(List<Timeslots> timeSlots) {
-		// TODO Auto-generated method stub
-		
-	}
+	
 }
