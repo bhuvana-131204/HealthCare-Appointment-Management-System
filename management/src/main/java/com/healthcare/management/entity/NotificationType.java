@@ -1,0 +1,12 @@
+package com.healthcare.management.entity;
+
+public enum NotificationType {
+    UPCOMING_APPOINTMENT,
+    CANCELLED_APPOINTMENT,
+    BOOKED_APPOINTMENT,
+    PENDING_APPOINTMENT,
+    DOCTOR_BOOKED,
+    DOCTOR_UPCOMING,
+    DOCTOR_PENDING,
+    DOCTOR_CANCELLED
+}

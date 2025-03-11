@@ -1,0 +1,48 @@
+package com.healthcare.management.entity;
+//import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.MapsId;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+//import jakarta.persistence.PrimaryKeyJoinColumn;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class Doctor{
+	
+	@Id
+	private String Doctor_id;
+	
+	@OneToOne
+	@MapsId
+	@JoinColumn(name = "Doctor_id")
+	private User doctor;
+	
+
+	@OneToMany(mappedBy = "doctor")
+	private Set<Availability> avail=new HashSet<Availability>();
+	
+	@OneToMany(mappedBy = "doc")
+	private Set<Appointment> appoint = new HashSet<Appointment>();
+	
+	@Column(name = "Name",nullable = false)
+	private String name;
+	
+	@Enumerated(EnumType.STRING)
+	@Column(name = "Specialization",nullable = false)
+	private Specialization specialization;
+	
+}

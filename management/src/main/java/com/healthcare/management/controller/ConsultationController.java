@@ -1,0 +1,90 @@
+package com.healthcare.management.controller;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.healthcare.management.dto.ConsultationDto;
+import com.healthcare.management.entity.Appointment;
+import com.healthcare.management.entity.Consultation;
+//import com.healthcare.management.entity.Consultation;
+import com.healthcare.management.service.ConsultationService;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@RestController
+@RequestMapping("/consultation")
+public class ConsultationController {
+	
+	@Autowired
+	private ConsultationService consultantService;
+	
+	
+	@PostMapping("/create")
+	public ConsultationDto addConsultation(@RequestBody @Valid ConsultationDto consultationDto){
+		Consultation consultation = consultantService.createConsultation(consultationDto);
+        return new ConsultationDto(
+            consultation.getConsultationId(),
+            consultation.getAppointment().getAppointment_id(),
+            consultation.getNotes(),
+            consultation.getPrescription()
+        );
+	}
+	
+	@GetMapping
+	public List<ConsultationDto> getConsultationDetails() {
+	    return consultantService.getAllConsultationDetails().stream()
+	        .map(consultation -> {
+	            Appointment appointment = consultation.getAppointment();
+	            Integer appointmentId = (appointment != null) ? appointment.getAppointment_id() : null;
+	            return new ConsultationDto(
+	                consultation.getConsultationId(),
+	                appointmentId,
+	                consultation.getNotes(),
+	                consultation.getPrescription()
+	            );
+	        })
+	        .collect(Collectors.toList());
+	}
+	
+	@GetMapping("/{appId}")
+	public List<ConsultationDto>getConsultationDetailsByPatientID(@PathVariable int appId){
+		 return consultantService.findConDetailsByAppId(appId).stream()
+		            .map(consultation -> new ConsultationDto(
+		                consultation.getConsultationId(),
+		                consultation.getAppointment().getAppointment_id(),
+		                consultation.getNotes(),
+		                consultation.getPrescription()
+		            ))
+		            .collect(Collectors.toList());
+	}
+	
+	@PutMapping("/update/{conId}")
+	public ConsultationDto updateConsultation(@PathVariable int conId,@RequestBody @Valid ConsultationDto consultationDto) {
+		Consultation consultation = consultantService.updateConsultationDetailsById(conId, consultationDto);
+        return new ConsultationDto(
+            consultation.getConsultationId(),
+            consultation.getAppointment().getAppointment_id(),
+            consultation.getNotes(),
+            consultation.getPrescription()
+        );
+	}
+	
+	@DeleteMapping("/delete/{conId}")
+	public void removeConsultationDetails(@PathVariable int conId) {
+		consultantService.deleteConsultation(conId);
+	}
+	
+}
