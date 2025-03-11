@@ -25,6 +25,11 @@ public class DoctorController {
 	@Autowired
 	private DoctorService doctorService;
 	
+	@GetMapping("")
+	public String sayHello() {
+		return "HI";
+	}
+	
 	@GetMapping("/{id}")
 	public DoctorDto getDoctor(@PathVariable String id) {
 		DoctorDto doctor = doctorService.getDoctorById(id);
