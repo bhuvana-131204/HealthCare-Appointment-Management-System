@@ -2,53 +2,36 @@ package com.availabilitySchedule.dto;
 
 import com.availabilitySchedule.model.Availability;
 import com.availabilitySchedule.model.Timeslots;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.sql.Date;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class AvailabilityDTO {
-    private Long doctorId;
+    private String doctorId;
     private String date;
     private Timeslots timeSlots;
+    private String doctorName;
 
-    public Long getDoctorId() {
-        return doctorId;
-    }
-
-    public void setDoctorId(Long doctorId) {
-        this.doctorId = doctorId;
-    }
-
-    public String getDate() {
-        return date;
-    }
-
-    public void setDate(String date) {
-        this.date = date;
-    }
-
-    public Timeslots getTimeSlots() {
-        return timeSlots;
-    }
-
-    public void setTimeSlots(Timeslots timeslots2) {
-        this.timeSlots = timeslots2;
-    }
-
-    // Convert DTO to Entity
     public Availability toEntity() {
         Availability availability = new Availability();
         availability.setDoctorId(this.doctorId);
-        availability.setDate(java.sql.Date.valueOf(this.date)); // Assuming date is in 'yyyy-MM-dd' format
-        availability.setSlots(this.timeSlots);
+        availability.setDate(Date.valueOf(this.date));
+        availability.setTimeSlots(this.timeSlots);
+        availability.setDoctorName(this.doctorName);
         return availability;
     }
 
-    // Convert Entity to DTO
     public static AvailabilityDTO fromEntity(Availability availability) {
         AvailabilityDTO dto = new AvailabilityDTO();
         dto.setDoctorId(availability.getDoctorId());
         dto.setDate(availability.getDate().toString());
-        dto.setTimeSlots(availability.getSlots());
+        dto.setTimeSlots(availability.getTimeSlots());
+        dto.setDoctorName(availability.getDoctorName());
         return dto;
     }
 }

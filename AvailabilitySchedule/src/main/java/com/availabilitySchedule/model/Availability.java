@@ -1,12 +1,12 @@
 package com.availabilitySchedule.model;
 
-import java.sql.Date;
-//import java.util.List;
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.sql.Date;
+import java.util.UUID;
 
 @Entity
 @Data
@@ -15,23 +15,27 @@ import lombok.NoArgsConstructor;
 public class Availability {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "availability_id")
-    private long availabilityId;
+    //@GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "availability_id",nullable = false,unique = true)
+    private String availabilityId;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "slot", nullable = false)
-    private Timeslots slots;
+    @Column(name = "slot")
+    private Timeslots timeSlots;
 
-    @Column(name = "date", nullable = false)
+    @Column(name = "date", nullable= true)
     private Date date;
 
-    
     @Column(name = "doctor_name", nullable = true)
     private String doctorName;
 
     @Column(name = "doctor_id", nullable = true)
-    private Long doctorId; 
-
-	
+    private String doctorId;
+    
+    @PrePersist
+    protected void onCreate() {
+    	if(availabilityId==null) {
+    		availabilityId = UUID.randomUUID().toString();
+    	}
+    }
 }
