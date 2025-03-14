@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.example</groupId>
-	<artifactId>jdbc-1</artifactId>
+	<artifactId>Appointment_Scheduling</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>Appointment_Scheduling</name>
 	<description>Handles appointments</description>

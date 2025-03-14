@@ -9,7 +9,7 @@ import java.util.UUID;
 import java.util.Date;
 
 @Entity
-@Data
+//@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Availability {
@@ -37,4 +37,36 @@ public class Availability {
             availabilityId = UUID.randomUUID().toString();
         }
     }
+	public String getAvailabilityId() {
+		return availabilityId;
+	}
+	public void setAvailabilityId(String availabilityId) {
+		this.availabilityId = availabilityId;
+	}
+	public Specialization getSpecialization() {
+		return specialization;
+	}
+	public void setSpecialization(Specialization specialization) {
+		this.specialization = specialization;
+	}
+	public TimeSlots getSlots() {
+		return slots;
+	}
+	public void setSlots(TimeSlots slots) {
+		this.slots = slots;
+	}
+	public Date getDate() {
+		return date;
+	}
+	public void setDate(Date date) {
+		this.date = date;
+	}
+	public String getDoctorId() {
+		return doctorId;
+	}
+	public void setDoctorId(String doctorId) {
+		this.doctorId = doctorId;
+	}
+    
+ 
 }

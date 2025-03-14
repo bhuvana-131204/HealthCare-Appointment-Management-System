@@ -18,6 +18,7 @@ public class AppointmentDto {
     private Status status;
     private String doctorId;
     private Date date;
+    private String availabilityId;
    
    
 	

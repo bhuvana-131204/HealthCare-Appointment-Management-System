@@ -41,6 +41,9 @@ public class Appointment {
     
     @Column(name = "date")
     private Date date;
+    
+    @Column(name = "availability_id")
+    private String availabilityId;
 	
 
 	@PrePersist
