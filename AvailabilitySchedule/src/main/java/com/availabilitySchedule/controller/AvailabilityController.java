@@ -6,11 +6,15 @@ import com.availabilitySchedule.exception.NoAvailabilityFoundException;
 import com.availabilitySchedule.exception.DatabaseException;
 import com.availabilitySchedule.service.AvailabilityService;
 import com.availabilitySchedule.model.Availability;
+import com.availabilitySchedule.model.Specialization;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -35,28 +39,48 @@ public class AvailabilityController {
         }
     }
 
-    @GetMapping("/doctor/{doctorId}")
-    public ResponseEntity<Response<AvailabilityDTO>> getAvailability(@PathVariable String doctorId) {
-        log.info("Entering getAvailability method for doctorId: {}", doctorId);
+    @GetMapping("/doctor/{doctorId}/{date}")
+    public ResponseEntity<Response<List<Availability>>> getAvailabilityByDoctorIdAndDate(
+            @PathVariable String doctorId, @PathVariable LocalDate date) {
+        log.info("Entering getAvailability method for doctorId and date: {} {}", doctorId, date);
         try {
-            AvailabilityDTO availabilityDTO = availabilityService.getAvailability(doctorId);
-            Response<AvailabilityDTO> response = new Response<>(true, HttpStatus.OK, availabilityDTO);
-            log.info("Exiting getAvailability method for doctorId: {}", doctorId);
+            List<Availability> availabilityList = availabilityService.getAvailabilityByDoctorIdAndDate(doctorId, date);
+            Response<List<Availability>> response = new Response<>(true, HttpStatus.OK, availabilityList);
+            log.info("Exiting getAvailability method for doctorId and date: {} {}", doctorId, date);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (NoAvailabilityFoundException e) {
             log.error("Error in getAvailability method", e);
-            Response<AvailabilityDTO> response = new Response<>(false, HttpStatus.NOT_FOUND, null);
+            Response<List<Availability>> response = new Response<>(false, HttpStatus.NOT_FOUND, null);
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         } catch (DatabaseException e) {
             log.error("Error in getAvailability method", e);
-            Response<AvailabilityDTO> response = new Response<>(false, HttpStatus.INTERNAL_SERVER_ERROR, null);
+            Response<List<Availability>> response = new Response<>(false, HttpStatus.INTERNAL_SERVER_ERROR, null);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    @GetMapping("/specialization/{specialization}/{date}")
+    public ResponseEntity<Response<List<Availability>>> getAvailabilityBySpecializationAndDate(@PathVariable Specialization specialization,@PathVariable LocalDate date) {
+        log.info("Entering getAvailability method for specialization and date: {} {}", specialization, date);
+        try {
+            List<Availability> availabilities = availabilityService.getAvailabilityBySpecializationAndDate(specialization, date);
+            Response<List<Availability>> response = new Response<>(true, HttpStatus.OK, availabilities);
+            log.info("Exiting getAvailability method for specialization and date: {} {}", specialization, date);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (NoAvailabilityFoundException e) {
+            log.error("Error in getAvailability method", e);
+            Response<List<Availability>> response = new Response<>(false, HttpStatus.NOT_FOUND, null);
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        } catch (DatabaseException e) {
+            log.error("Error in getAvailability method", e);
+            Response<List<Availability>> response = new Response<>(false, HttpStatus.INTERNAL_SERVER_ERROR, null);
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping("/doctors")
     public ResponseEntity<List<Availability>> viewAllAvailabilities() {
-        try {
+    	try {
             List<Availability> availabilities = availabilityService.viewAllAvailabilities();
             return new ResponseEntity<>(availabilities, HttpStatus.OK);
         } catch (DatabaseException e) {
@@ -65,13 +89,13 @@ public class AvailabilityController {
         }
     }
 
-    @PostMapping("/block")
-    public ResponseEntity<Response<String>> blockTimeSlot(@RequestBody AvailabilityDTO availabilityDTO) {
-        log.info("Entering blockTimeSlot method for doctorId: {}", availabilityDTO.getDoctorId());
+    @PostMapping("/block/{availabilityId}")
+    public ResponseEntity<Response<String>> blockTimeSlot(@PathVariable String availabilityId) {
+        log.info("Entering blockTimeSlot method for availabilityId: {}", availabilityId);
         try {
-            availabilityService.blockTimeSlot(availabilityDTO);
+            availabilityService.blockTimeSlot(availabilityId);
             Response<String> response = new Response<>(true, HttpStatus.OK, "Time slot blocked successfully");
-            log.info("Exiting blockTimeSlot method for doctorId: {}", availabilityDTO.getDoctorId());
+            log.info("Exiting blockTimeSlot method for availabilityId: {}", availabilityId);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (NoAvailabilityFoundException e) {
             log.error("Error in blockTimeSlot method", e);
@@ -102,4 +126,6 @@ public class AvailabilityController {
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    
+    
 }

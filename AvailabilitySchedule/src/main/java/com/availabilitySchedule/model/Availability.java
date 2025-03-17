@@ -5,7 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.sql.Date;
+//import java.sql.Date;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
@@ -14,28 +15,31 @@ import java.util.UUID;
 @AllArgsConstructor
 public class Availability {
 
-    @Id
-    //@GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "availability_id",nullable = false,unique = true)
-    private String availabilityId;
+	@Id
+	@Column(name = "availability_id", nullable = false, unique = true)
+	private String availabilityId;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "slot")
-    private Timeslots timeSlots;
+	@Column(name = "doctor_name", nullable = true)
+	private String doctorName;
 
-    @Column(name = "date", nullable= true)
-    private Date date;
+	@Column(name = "doctor_id", nullable = true)
+	private String doctorId;
+	
+	@Enumerated(EnumType.STRING)
+	@Column(name = "specialization", nullable = true)
+	private Specialization specialization;
+	
+	@Column(name = "date", nullable = true)
+	private LocalDate date;
 
-    @Column(name = "doctor_name", nullable = true)
-    private String doctorName;
-
-    @Column(name = "doctor_id", nullable = true)
-    private String doctorId;
-    
-    @PrePersist
-    protected void onCreate() {
-    	if(availabilityId==null) {
-    		availabilityId = UUID.randomUUID().toString();
-    	}
-    }
+	@Enumerated(EnumType.STRING)
+	@Column(name = "slot")
+	private Timeslots timeSlots;
+	
+	@PrePersist
+	protected void onCreate() {
+		if (availabilityId == null) {
+			availabilityId = UUID.randomUUID().toString();
+		}
+	}
 }
