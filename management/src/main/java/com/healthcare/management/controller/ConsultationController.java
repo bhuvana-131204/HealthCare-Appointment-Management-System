@@ -34,6 +34,7 @@ public class ConsultationController {
 	
 	@PostMapping("/create")
 	public ConsultationDto addConsultation(@RequestBody @Valid ConsultationDto consultationDto){
+		log.info("Creating a new consultation record..");
 		Consultation consultation = consultantService.createConsultation(consultationDto);
         return new ConsultationDto(
             consultation.getConsultationId(),
@@ -45,6 +46,7 @@ public class ConsultationController {
 	
 	@GetMapping
 	public List<ConsultationDto> getConsultationDetails() {
+		log.info("Loading all the consultation details...");
 	    return consultantService.getAllConsultationDetails().stream()
 	        .map(consultation -> {
 	            Appointment appointment = consultation.getAppointment();
@@ -61,7 +63,8 @@ public class ConsultationController {
 	
 	@GetMapping("/{appId}")
 	public List<ConsultationDto>getConsultationDetailsByPatientID(@PathVariable int appId){
-		 return consultantService.findConDetailsByAppId(appId).stream()
+		log.info("Retreiving the consultation details filtered by Patient ID..");
+		return consultantService.findConDetailsByAppId(appId).stream()
 		            .map(consultation -> new ConsultationDto(
 		                consultation.getConsultationId(),
 		                consultation.getAppointment().getAppointment_id(),
@@ -73,6 +76,7 @@ public class ConsultationController {
 	
 	@PutMapping("/update/{conId}")
 	public ConsultationDto updateConsultation(@PathVariable int conId,@RequestBody @Valid ConsultationDto consultationDto) {
+		log.info("Updating Consultation Details..");
 		Consultation consultation = consultantService.updateConsultationDetailsById(conId, consultationDto);
         return new ConsultationDto(
             consultation.getConsultationId(),
@@ -84,7 +88,9 @@ public class ConsultationController {
 	
 	@DeleteMapping("/delete/{conId}")
 	public void removeConsultationDetails(@PathVariable int conId) {
+		log.info("Deleting the consultation details..");
 		consultantService.deleteConsultation(conId);
+		log.info("Successfully removed the consultation entry..");
 	}
 	
 }
