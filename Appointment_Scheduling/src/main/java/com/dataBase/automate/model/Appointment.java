@@ -24,7 +24,7 @@ public class Appointment {
     @Column(name="appointment_id", nullable = false, unique = true)
     private String appointmentId;
     @Enumerated(EnumType.STRING)
-    @Column(name = "time_slot")
+    @Column(name = "time_slot",nullable = false)
     private TimeSlots timeSlot;
 
     @Enumerated(EnumType.STRING)
@@ -32,17 +32,17 @@ public class Appointment {
     private Status status;
     
     
-    @Column(name = "patient_id")
+    @Column(name = "patient_id",nullable = false)
     private String patientId;
 
-    @Column(name = "doctor_id")
+    @Column(name = "doctor_id" , nullable = false)
     private String doctorId;
     
     
-    @Column(name = "date")
+    @Column(name = "date",nullable = false)
     private Date date;
     
-    @Column(name = "availability_id")
+    @Column(name = "availability_id",nullable = false,unique=true)
     private String availabilityId;
 	
 

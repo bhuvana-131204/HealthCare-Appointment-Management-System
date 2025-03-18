@@ -30,6 +30,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * Service for managing appointments.
+ * 
+ * @Author Sanjay R
+ * @Since 2025-03-18
+ */
 @Slf4j
 @Service
 public class AppointmentService {
@@ -39,7 +45,13 @@ public class AppointmentService {
 
     @Autowired
     private AvailabilityRepository availabilityRepository;
-    //1.CREATE
+
+    /**
+     * Creates a new appointment.
+     * 
+     * @param availabilityId the ID of the availability
+     * @return the created appointment
+     */
     public Appointment createAppointment(String availabilityId) {
         if (availabilityId == null) {
             throw new IllegalArgumentException("Availability ID cannot be null");
@@ -60,11 +72,22 @@ public class AppointmentService {
         notifyAfterBooking(appointment);
         return savedAppointment;
     }
-    //2.view
+
+    /**
+     * Views all appointments.
+     * 
+     * @return the list of appointments
+     */
     public List<Appointment> viewAppointments() {
         return appointmentRepository.findAll();
     }
-    //3.viewById
+
+    /**
+     * Fetches an appointment by ID.
+     * 
+     * @param id the ID of the appointment
+     * @return the appointment
+     */
     public Optional<Appointment> fetchAppointmentById(String id) {
         if (id == null) {
             throw new IllegalArgumentException("Appointment ID cannot be null");
@@ -79,7 +102,14 @@ public class AppointmentService {
             throw new AppointmentNotFoundException("Appointment not found for ID: " + id);
         }
     }
-    //4.UPDATE
+
+    /**
+     * Updates an appointment by ID and new availability ID.
+     * 
+     * @param id the ID of the appointment
+     * @param newAvailabilityId the new availability ID
+     * @return the updated appointment
+     */
     public Appointment updateAppointment(String id, String newAvailabilityId) {
         if (id == null || newAvailabilityId == null) {
             throw new IllegalArgumentException("Appointment ID and New Availability ID cannot be null");
@@ -104,7 +134,12 @@ public class AppointmentService {
 
         return appointmentRepository.save(appointment);
     }
-    //5.CANCEL
+
+    /**
+     * Cancels an appointment by ID.
+     * 
+     * @param id the ID of the appointment
+     */
     public void cancelAppointment(String id) {
         if (id == null) {
             throw new IllegalArgumentException("Appointment ID cannot be null");
@@ -116,14 +151,48 @@ public class AppointmentService {
         appointmentRepository.save(appointment);
     }
 
-    //NOTIFY 
-    //1.CANCEL/REMOVAL
+    /**
+     * Fetches appointments by patient ID.
+     * 
+     * @param patientId the ID of the patient
+     * @return the list of appointments
+     */
+    public List<Appointment> fetchAppointmentsByPatientId(String patientId) {
+        try {
+            return appointmentRepository.findByPatientId(patientId);
+        } catch (Exception ex) {
+            log.error("Exception: {}", ex.getMessage());
+            throw ex;
+        }
+    }
+
+    /**
+     * Fetches appointments by doctor ID.
+     * 
+     * @param doctorId the ID of the doctor
+     * @return the list of appointments
+     */
+    public List<Appointment> fetchAppointmentsByDoctorId(String doctorId) {
+        try {
+            return appointmentRepository.findByDoctorId(doctorId);
+        } catch (Exception ex) {
+            log.error("Exception: {}", ex.getMessage());
+            throw ex;
+        }
+    }
+
+    /**
+     * Notifies the doctor for removal of an appointment.
+     * 
+     * @param doctorId the ID of the doctor
+     * @param patientId the ID of the patient
+     * @param id the ID of the appointment
+     */
     public void notifyDoctorForRemoval(String doctorId, String patientId, String id) {
         if (doctorId == null || patientId == null || id == null) {
             throw new IllegalArgumentException("Doctor ID or Patient ID and Appointment ID cannot be null");
         }
 
-       
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new AppointmentNotFoundException("Appointment not found for ID: " + id));
         appointment.setStatus(Status.Cancelled);
@@ -131,9 +200,11 @@ public class AppointmentService {
         log.info("Doctor {} notified for schedule cancellation for patient {}", doctorId, patientId);
     }
 
-   
-    
-    //2.BOOKED
+    /**
+     * Notifies after booking an appointment.
+     * 
+     * @param appointment the appointment
+     */
     public void notifyAfterBooking(Appointment appointment) {
         if (appointment == null) {
             throw new AppointmentNotFoundException("Appointment not found");
@@ -141,7 +212,13 @@ public class AppointmentService {
 
         // logic for Notification module
     }
-    //3.UPDATED
+
+    /**
+     * Notifies after updating an appointment.
+     * 
+     * @param availabilityId the old availability ID
+     * @param newAvailabilityId the new availability ID
+     */
     public void notifyAfterUpdate(String availabilityId, String newAvailabilityId) {
         if (availabilityId == null || newAvailabilityId == null) {
             throw new IllegalArgumentException("Availability ID and New Availability ID cannot be null");
@@ -149,7 +226,12 @@ public class AppointmentService {
 
         // logic for Notification module
     }
-    //4.DELETE , not just cancel but remove from repository
+
+    /**
+     * Deletes an appointment by ID.
+     * 
+     * @param appointmentId the ID of the appointment
+     */
     public void deleteAppointment(String appointmentId) {
         if (appointmentId == null) {
             throw new IllegalArgumentException("Appointment ID cannot be null");
@@ -161,25 +243,39 @@ public class AppointmentService {
             throw new AppointmentNotFoundException("Appointment not found for ID: " + appointmentId);
         }
     }
-    //AVAILABILITY
-    //1.getAllAvailability
+
+    /**
+     * Notifies after completing an appointment.
+     * 
+     * @param appointmentId the ID of the appointment
+     */
+    public void notifyAfterCompletion(String appointmentId) {
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new AppointmentNotFoundException("Appointment not found for ID: " + appointmentId));
+        appointment.setStatus(Status.Completed);
+        // logic for Consultation module
+    }
+
+    // Availability methods
+
+    /**
+     * Gets all available doctors.
+     * 
+     * @return the list of available doctors
+     */
     public List<AvailabilityDto> getAvailableDoctors() {
         return availabilityRepository.findAll().stream()
                 .map(availability -> new AvailabilityDto(availability.getAvailabilityId(), availability.getSlots(),
                         availability.getDate(), availability.getDoctorId(), availability.getSpecialization()))
                 .collect(Collectors.toList());
     }
-    //2.setAListOfAvailaiblity
-    public void setAvailableDoctors(List<AvailabilityDto> availabilityDtos) {
-        if (availabilityDtos == null) {
-            throw new IllegalArgumentException("Availability DTOs cannot be null");
-        }
 
-        for (AvailabilityDto dto : availabilityDtos) {
-            setAvailableDoctor(dto);
-        }
-    }
-    //3.SetOneAvailability
+   
+    /**
+     * Sets a single available doctor.
+     * 
+     * @param availabilityDto the availability DTO
+     */
     public void setAvailableDoctor(AvailabilityDto availabilityDto) {
         if (availabilityDto == null) {
             throw new IllegalArgumentException("Availability DTO cannot be null");
@@ -192,7 +288,11 @@ public class AppointmentService {
         availability.setSpecialization(availabilityDto.getSpecialization());
         availabilityRepository.save(availability);
     }
-    //showAvailableDoctors
+    /**
+     * Shows availability of doctors.
+     * 
+     * @return the list of doctor time slots
+     */
     public List<String> showAvailability() {
         List<Availability> availabilities = availabilityRepository.findAll();
         Map<String, List<String>> doctorTimeSlotsMap = new HashMap<>();
@@ -212,22 +312,13 @@ public class AppointmentService {
                 .collect(Collectors.toList());
     }
 
-//    public List<Availability> getAllAvailability() {
-//        return availabilityRepository.findAll();
-//    }
-    
-    
-//    public Appointment doctorAccepted(String appointmentId) {
-//        if (appointmentId == null) {
-//            throw new IllegalArgumentException("Appointment ID cannot be null");
-//        }
-//
-//        Appointment appointment = appointmentRepository.findById(appointmentId)
-//                .orElseThrow(() -> new AppointmentNotFoundException("Appointment not found for ID: " + appointmentId));
-//        appointment.setStatus(Status.Booked);
-//        return appointmentRepository.save(appointment);
-//    }
-
+    /**
+     * Gets available doctors by date and specialization.
+     * 
+     * @param date the date
+     * @param specialization the specialization
+     * @return the list of available doctors
+     */
     public List<String> getAvailableDoctorsByDateAndSpecialization(String date, String specialization) {
         if (date == null || specialization == null) {
             throw new IllegalArgumentException("Date and Specialization cannot be null");
@@ -237,6 +328,13 @@ public class AppointmentService {
         return new ArrayList<>();
     }
 
+    /**
+     * Gets available doctors by date and doctor ID.
+     * 
+     * @param date the date
+     * @param doctorId the ID of the doctor
+     * @return the list of available doctors
+     */
     public List<String> getAvailableDoctorsByDateAndId(String date, String doctorId) {
         if (date == null || doctorId == null) {
             throw new IllegalArgumentException("Date and Doctor ID cannot be null");
@@ -245,29 +343,24 @@ public class AppointmentService {
         // logic for availability controller
         return new ArrayList<>();
     }
-    //GetNotifiedfromDoctor
-    public void updationAfterNotification(String availabilityId, String type) {
-        if (availabilityId == null || type == null) {
-            throw new IllegalArgumentException("Availability ID and Type cannot be null");
+
+    /**
+     * Updates appointment after notification.
+     * 
+     * @param appointmentId the ID of the appointment
+     */
+    public void updationAfterNotification(String appointmentId) {
+        if (appointmentId == null) {
+            throw new IllegalArgumentException("Appointment ID cannot be null");
         }
 
-        Optional<Appointment> optionalAppointment = appointmentRepository.findByAvailabilityId(availabilityId);
+        Optional<Appointment> optionalAppointment = appointmentRepository.findById(appointmentId);
         if (optionalAppointment.isPresent()) {
-            if ("Accepted".equals(type)) {
-                Appointment appointment = optionalAppointment.get();
-                appointment.setStatus(Status.Booked);
-                appointmentRepository.save(appointment);
-            } else if ("Rejected".equals(type)) {
-                Appointment appointment = optionalAppointment.get();
-                appointment.setStatus(Status.Cancelled);
-                appointmentRepository.save(appointment);
-            } else {
-                throw new AppointmentNotFoundException("Type is not correct");
-            }
+            Appointment appointment = optionalAppointment.get();
+            appointment.setStatus(Status.Cancelled);
+            appointmentRepository.save(appointment);
         } else {
             throw new AppointmentNotFoundException("Appointment for this availability is not found");
         }
     }
-
-    
 }
