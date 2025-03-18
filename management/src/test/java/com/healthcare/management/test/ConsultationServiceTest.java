@@ -82,7 +82,7 @@ public class ConsultationServiceTest {
 	        when(appointmentDAO.findById(1)).thenReturn(Optional.of(appointment));
 
 	        Consultation consultation = new Consultation();
-	        consultation.setAppointment(appointment);
+	        consultation.setAppointmentId(consultation.getAppointmentId());
 	        consultation.setNotes("Test Notes");
 	        consultation.setPrescription("Test Prescription");
 
