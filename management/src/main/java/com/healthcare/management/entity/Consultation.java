@@ -23,17 +23,15 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-//@NamedQuery(name="findConsultationDetailsByAppointmentId", query="SELECT c from Consultation c where c.appointment.appointment_id=:appointmentId")
 public class Consultation {
 		@Id
 		@GeneratedValue(strategy = GenerationType.IDENTITY)
 		@Column(name="Consultation_id" ,nullable = false)
 		private int consultationId; 
 		
-		@OneToOne(cascade=CascadeType.PERSIST)
-		@JoinColumn(name = "Appointment_id")
-		
-		private Appointment appointment;
+//		@OneToOne(cascade=CascadeType.PERSIST)
+//		@JoinColumn(name = "Appointment_id")		
+		private int appointmentId;
 		
 		@Column(name = "Notes")
 		@Size(max = 500)
@@ -43,7 +41,7 @@ public class Consultation {
 		@NotNull
 		private String prescription;
 		
-		public void setAppointment(Appointment appointment) {
-	        this.appointment = appointment;
-	    }
+//		public void setAppointment(Appointment appointment) {
+//	        this.appointment = appointment;
+//	    }
 }

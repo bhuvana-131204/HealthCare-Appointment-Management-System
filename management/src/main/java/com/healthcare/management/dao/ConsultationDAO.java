@@ -14,7 +14,8 @@ public interface ConsultationDAO extends JpaRepository<Consultation, Integer> {
 //	@Query(name="findConsultationDetailsByAppointmentId")
 //	public List<Consultation> findConsultationDetailsByAppointmentId(int appointment_id);
 	
-	@Query("SELECT c from Consultation c where c.appointment.appointment_id=:appointment_Id")
+	//@Query("SELECT c from Consultation c where c.appointment.appointment_id=:appointment_Id")
+	@Query("SELECT c from Consultation c where c.appointmentId=:appointmentId")
 	public List<Consultation> findConsultationDetailsByAppointmentId(@Param("appointment_Id") int appointment_Id);
 	
 	Optional<Consultation>findByConsultationId(int consultationId);

@@ -1,5 +1,4 @@
 package com.healthcare.management.service;
-
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +44,7 @@ public class ConsultationService {
 	    Appointment appointment = appointmentDAO.findById(consultationDto.getAppointmentId())
 	            .orElseThrow(() -> new NoAppointmentFoundException("No Appointment found at ID " + consultationDto.getAppointmentId()));
 	    Consultation consultation = new Consultation();
-	    consultation.setAppointment(appointment);
+	    consultation.setAppointmentId(consultation.getAppointmentId());
 	    consultation.setNotes(consultationDto.getNotes());
 	    consultation.setPrescription(consultationDto.getPrescription());
 	    return consultationDAO.save(consultation);
@@ -72,9 +71,9 @@ public class ConsultationService {
         );
     }*/
 	
-	public List<Consultation>findConDetailsByAppId(int appointment_id){
+	public List<Consultation>findConDetailsByAppId(int appointmentId){
 		log.info("Retrieving consultation details filtered by appointment ID...");
-		return consultationDAO.findConsultationDetailsByAppointmentId(appointment_id);
+		return consultationDAO.findConsultationDetailsByAppointmentId(appointmentId);
 	}
 	
 //	public Consultation updateConsultationDetailsById(int consultationId,Consultation consultationDetails) {

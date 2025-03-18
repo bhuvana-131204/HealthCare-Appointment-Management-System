@@ -38,7 +38,7 @@ public class ConsultationController {
 		Consultation consultation = consultantService.createConsultation(consultationDto);
         return new ConsultationDto(
             consultation.getConsultationId(),
-            consultation.getAppointment().getAppointment_id(),
+            consultation.getAppointmentId(),
             consultation.getNotes(),
             consultation.getPrescription()
         );
@@ -49,8 +49,8 @@ public class ConsultationController {
 		log.info("Loading all the consultation details...");
 	    return consultantService.getAllConsultationDetails().stream()
 	        .map(consultation -> {
-	            Appointment appointment = consultation.getAppointment();
-	            Integer appointmentId = (appointment != null) ? appointment.getAppointment_id() : null;
+	           
+	            Integer appointmentId = consultation.getAppointmentId();
 	            return new ConsultationDto(
 	                consultation.getConsultationId(),
 	                appointmentId,
@@ -67,7 +67,7 @@ public class ConsultationController {
 		return consultantService.findConDetailsByAppId(appId).stream()
 		            .map(consultation -> new ConsultationDto(
 		                consultation.getConsultationId(),
-		                consultation.getAppointment().getAppointment_id(),
+		                consultation.getAppointmentId(),
 		                consultation.getNotes(),
 		                consultation.getPrescription()
 		            ))
@@ -80,7 +80,7 @@ public class ConsultationController {
 		Consultation consultation = consultantService.updateConsultationDetailsById(conId, consultationDto);
         return new ConsultationDto(
             consultation.getConsultationId(),
-            consultation.getAppointment().getAppointment_id(),
+            consultation.getAppointmentId(),
             consultation.getNotes(),
             consultation.getPrescription()
         );
