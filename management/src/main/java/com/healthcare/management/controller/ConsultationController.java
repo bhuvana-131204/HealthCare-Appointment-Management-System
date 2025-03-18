@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.healthcare.management.dto.ConsultationDto;
-import com.healthcare.management.entity.Appointment;
+//import com.healthcare.management.entity.Appointment;
 import com.healthcare.management.entity.Consultation;
 //import com.healthcare.management.entity.Consultation;
 import com.healthcare.management.service.ConsultationService;
