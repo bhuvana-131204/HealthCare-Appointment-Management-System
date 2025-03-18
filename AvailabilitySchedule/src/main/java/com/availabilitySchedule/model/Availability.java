@@ -36,6 +36,10 @@ public class Availability {
 	@Column(name = "slot")
 	private Timeslots timeSlots;
 	
+	@Enumerated(EnumType.STRING)
+	@Column(name="status")
+	private Status status;
+	
 	@PrePersist
 	protected void onCreate() {
 		if (availabilityId == null) {

@@ -1,6 +1,7 @@
-package com.availabilitySchedule.model;
+package com.availabilitySchedule.dto;
 
-import java.sql.Date;
+
+import com.availabilitySchedule.model.Specialization;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
