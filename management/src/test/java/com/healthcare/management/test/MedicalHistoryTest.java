@@ -1,0 +1,191 @@
+package com.healthcare.management.test;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+import java.util.Optional;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import com.healthcare.management.dao.HistoryDAO;
+import com.healthcare.management.dao.PatientDAO;
+import com.healthcare.management.dto.HistoryDto;
+import com.healthcare.management.entity.MedicalHistory;
+import com.healthcare.management.entity.Patient;
+import com.healthcare.management.exception.NoHistoryFoundException;
+import com.healthcare.management.exception.NoPatientFoundException;
+import com.healthcare.management.service.HistoryService;
+
+public class MedicalHistoryTest {
+
+    @Mock
+    private HistoryDAO historyDAO;
+
+    @Mock
+    private PatientDAO patientDAO;
+
+    @InjectMocks
+    private HistoryService historyService;
+
+    @BeforeEach
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
+    }
+
+    @Test
+    public void testAddHistory() {
+        HistoryDto historyDto = new HistoryDto();
+        historyDto.setHistoryId(1L);
+        historyDto.setPatientId("2");
+        historyDto.setHealthHistory("Test Health History");
+
+        Patient patient = new Patient();
+        when(patientDAO.findById("2")).thenReturn(Optional.of(patient));
+
+        MedicalHistory medicalHistory = new MedicalHistory();
+        medicalHistory.setHistory_id(1L);
+        medicalHistory.setPatientId("2");
+        medicalHistory.setHealthHistory("Test Health History");
+
+        when(historyDAO.save(any(MedicalHistory.class))).thenReturn(medicalHistory);
+
+        HistoryDto result = historyService.addHistory(historyDto);
+
+        assertNotNull(result);
+        assertEquals(1L, result.getHistoryId());
+        assertEquals("2", result.getPatientId());
+        assertEquals("Test Health History", result.getHealthHistory());
+        verify(patientDAO, times(1)).findById("2");
+        verify(historyDAO, times(1)).save(any(MedicalHistory.class));
+    }
+    
+    
+    @Test
+    public void testAddHistory_NoPatientFound() {
+        HistoryDto historyDto = new HistoryDto();
+        historyDto.setPatientId("1");
+
+        when(patientDAO.findById("1")).thenReturn(Optional.empty());
+
+        assertThrows(NoPatientFoundException.class, () -> {
+            historyService.addHistory(historyDto);
+        });
+    }
+
+    @Test
+    public void testGetMedicalHistoryByHistoryId() {
+        MedicalHistory medicalHistory = new MedicalHistory();
+        medicalHistory.setHistory_id(1L);
+        medicalHistory.setHealthHistory("Test Health History");
+        //Patient patient = new Patient();
+        medicalHistory.setPatientId("2");
+
+        when(historyDAO.findById(1L)).thenReturn(Optional.of(medicalHistory));
+
+        HistoryDto result = historyService.getMedicalHistoryByHistoryId(1L);
+
+        assertNotNull(result);
+        assertEquals(1L, result.getHistoryId());
+        assertEquals("Test Health History", result.getHealthHistory());
+        assertEquals("2", result.getPatientId());
+        verify(historyDAO, times(1)).findById(1L);
+    }
+
+    @Test
+    public void testGetMedicalHistoryByHistoryId_NotFound() {
+        when(historyDAO.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(NoHistoryFoundException.class, () -> {
+            historyService.getMedicalHistoryByHistoryId(1L);
+        });
+    }
+
+    @Test
+    public void testGetHistoryByPatientId() {
+        MedicalHistory medicalHistory = new MedicalHistory();
+        medicalHistory.setHistory_id(1L);
+        medicalHistory.setHealthHistory("Test Health History");
+       // Patient patient = new Patient();
+        medicalHistory.setPatientId("2");
+
+        when(historyDAO.getMedicalHistoryByPatientId("patient1")).thenReturn(medicalHistory);
+
+        HistoryDto result = historyService.getHistoryByPatientId("patient1");
+
+        assertNotNull(result);
+        assertEquals(1L, result.getHistoryId());
+        assertEquals("Test Health History", result.getHealthHistory());
+        verify(historyDAO, times(1)).getMedicalHistoryByPatientId("patient1");
+    }
+
+    @Test
+    public void testGetHistoryByPatientId_NotFound() {
+        when(historyDAO.getMedicalHistoryByPatientId("patient1")).thenReturn(null);
+
+        assertThrows(NoHistoryFoundException.class, () -> {
+            historyService.getHistoryByPatientId("patient1");
+        });
+    }
+
+    @Test
+    public void testUpdateMedicalHistory() {
+        MedicalHistory medicalHistory = new MedicalHistory();
+        medicalHistory.setHistory_id(1L);
+        medicalHistory.setHealthHistory("Old Health History");
+       // Patient patient = new Patient();
+        medicalHistory.setPatientId("2");
+
+        HistoryDto historyDto = new HistoryDto();
+        historyDto.setHealthHistory("Updated Health History");
+
+        when(historyDAO.getMedicalHistoryByPatientId("patient1")).thenReturn(medicalHistory);
+        when(historyDAO.save(any(MedicalHistory.class))).thenReturn(medicalHistory);
+
+        HistoryDto result = historyService.updateMedicalHistory("patient1", historyDto);
+
+        assertNotNull(result);
+        assertEquals("Updated Health History", result.getHealthHistory());
+        verify(historyDAO, times(1)).getMedicalHistoryByPatientId("patient1");
+        verify(historyDAO, times(1)).save(any(MedicalHistory.class));
+    }
+
+    @Test
+    public void testUpdateMedicalHistory_NotFound() {
+        HistoryDto historyDto = new HistoryDto();
+        historyDto.setHealthHistory("Updated Health History");
+
+        when(historyDAO.getMedicalHistoryByPatientId("patient1")).thenReturn(null);
+
+        assertThrows(NoHistoryFoundException.class, () -> {
+            historyService.updateMedicalHistory("patient1", historyDto);
+        });
+    }
+
+    @Test
+    public void testDeleteMedicalHistory() {
+        MedicalHistory medicalHistory = new MedicalHistory();
+        medicalHistory.setHistory_id(1L);
+       // Patient patient = new Patient();
+        medicalHistory.setPatientId("2");
+
+        when(historyDAO.getMedicalHistoryByPatientId("patient1")).thenReturn(medicalHistory);
+
+        historyService.deleteMedicalHistory("patient1");
+
+        verify(historyDAO, times(1)).getMedicalHistoryByPatientId("patient1");
+        verify(historyDAO, times(1)).delete(medicalHistory);
+    }
+
+    @Test
+    public void testDeleteMedicalHistory_NotFound() {
+        when(historyDAO.getMedicalHistoryByPatientId("patient1")).thenReturn(null);
+
+        assertThrows(NoHistoryFoundException.class, () -> {
+            historyService.deleteMedicalHistory("patient1");
+        });
+    }
+}

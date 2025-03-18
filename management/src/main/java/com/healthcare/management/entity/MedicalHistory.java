@@ -16,8 +16,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@NamedQuery(name="getMedicalHistoryByPatientId",
-query="SELECT h FROM MedicalHistory h WHERE h.patientId.Patient_id = :patientId")
+@NamedQuery(name = "getMedicalHistoryByPatientId",
+query = "SELECT h FROM MedicalHistory h WHERE h.patientId = :patientId")
 public class MedicalHistory {
 	
 	@Id
@@ -25,10 +25,8 @@ public class MedicalHistory {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long history_id;	
 	
-	@ManyToOne
-	@JoinColumn(name="Patient_id")
-	private Patient patientId;
-	//private Patient medicalHistory;
+	@Column(name = "Patient_id")
+	private String patientId;
 	
 	
 	@Column(name="DiseaseHistory")

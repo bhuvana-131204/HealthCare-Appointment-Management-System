@@ -22,23 +22,46 @@ public class HistoryService {
 	
 	@Autowired
 	private PatientDAO patientDAO;
-		
+
+	/*public HistoryDto addHistory(HistoryDto historyDTO) {
+	    log.info("Added a new record in medical history table..");
+	    MedicalHistory medicalHistory = new MedicalHistory();
+	    medicalHistory.setHistory_id(historyDTO.getHistoryId());
+	    medicalHistory.setPatientId(historyDTO.getPatientId());
+	    medicalHistory.setHealthHistory(historyDTO.getHealthHistory());
+
+//	    Patient patient = patientDAO.findById(historyDTO.getPatientId())
+//	            .orElseThrow(() -> new NoPatientFoundException("No Patient exists with the ID " + historyDTO.getPatientId()));
+//	    medicalHistory.setPatientId(patient);
+
+	    MedicalHistory savedMedicalHistory = historyDAO.save(medicalHistory);
+
+	    HistoryDto historyDto = new HistoryDto();
+	    historyDto.setHistoryId(savedMedicalHistory.getHistory_id());
+	    historyDto.setPatientId(savedMedicalHistory.getPatientId());
+	    historyDto.setHealthHistory(savedMedicalHistory.getHealthHistory());
+	    return historyDto;
+	}  */
+	 
 	public HistoryDto addHistory(HistoryDto historyDTO) {
-        log.info("Added a new record in medical history table..");
-        MedicalHistory medicalHistory = new  MedicalHistory();
-        medicalHistory.setHistory_id(historyDTO.getHistoryId());
-        
-        medicalHistory.setHealthHistory(historyDTO.getHealthHistory());
-        Patient patient = patientDAO.findById(historyDTO.getPatientId())
-                .orElseThrow(() -> new NoPatientFoundException("No Patient exists with the ID " + historyDTO.getPatientId()));    
-        medicalHistory.setPatientId(patient);
-        MedicalHistory savedMedicalHistory = historyDAO.save(medicalHistory);
-       
-        HistoryDto historyDto = new HistoryDto();
-        historyDto.setHistoryId(savedMedicalHistory.getHistory_id());
-        historyDto.setPatientId(savedMedicalHistory.getPatientId().getPatient_id());
-        historyDto.setHealthHistory(savedMedicalHistory.getHealthHistory());
-        return historyDto;
+	    log.info("Added a new record in medical history table..");
+	    MedicalHistory medicalHistory = new MedicalHistory();
+	    medicalHistory.setHistory_id(historyDTO.getHistoryId());
+	    medicalHistory.setPatientId(historyDTO.getPatientId());
+	    medicalHistory.setHealthHistory(historyDTO.getHealthHistory());
+
+	    // Check if the patient exists
+	    Patient patient = patientDAO.findById(historyDTO.getPatientId())
+	            .orElseThrow(() -> new NoPatientFoundException("No Patient exists with the ID " + historyDTO.getPatientId()));
+	    // medicalHistory.setPatientId(patient); // This line is not needed since patientId is a String
+
+	    MedicalHistory savedMedicalHistory = historyDAO.save(medicalHistory);
+
+	    HistoryDto historyDto = new HistoryDto();
+	    historyDto.setHistoryId(savedMedicalHistory.getHistory_id());
+	    historyDto.setPatientId(savedMedicalHistory.getPatientId());
+	    historyDto.setHealthHistory(savedMedicalHistory.getHealthHistory());
+	    return historyDto;
 	}
 	
 	public HistoryDto getMedicalHistoryByHistoryId(Long historyId) {
@@ -49,7 +72,7 @@ public class HistoryService {
         HistoryDto historyDto = new HistoryDto();
         historyDto.setHistoryId(medicalHistory.getHistory_id());
         historyDto.setHealthHistory(medicalHistory.getHealthHistory());
-        historyDto.setPatientId(medicalHistory.getPatientId().getPatient_id());
+        historyDto.setPatientId(medicalHistory.getPatientId());
         return historyDto;
     
     }
@@ -65,7 +88,7 @@ public class HistoryService {
         HistoryDto historyDto = new HistoryDto();
         historyDto.setHistoryId(medicalHistory.getHistory_id());
         historyDto.setHealthHistory(medicalHistory.getHealthHistory());
-        historyDto.setPatientId(medicalHistory.getPatientId().getPatient_id());
+        historyDto.setPatientId(medicalHistory.getPatientId());
         
         return historyDto;
     }
@@ -84,7 +107,7 @@ public class HistoryService {
         HistoryDto historyDto = new HistoryDto();
         historyDto.setHistoryId(updatedMedicalHistory.getHistory_id());
         historyDto.setHealthHistory(updatedMedicalHistory.getHealthHistory());
-        historyDto.setPatientId(updatedMedicalHistory.getPatientId().getPatient_id());
+        historyDto.setPatientId(updatedMedicalHistory.getPatientId());
         
         return historyDto;
     }
