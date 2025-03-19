@@ -7,11 +7,22 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * HistoryDto is a Data Transfer Object (DTO) that represents the details of a medical history.
+ * It includes fields for history ID, patient ID, and health history.
+ * 
+ * @Data - Generates getters, setters, toString, equals, and hashCode methods.
+ * @NoArgsConstructor - Generates a no-argument constructor.
+ * @AllArgsConstructor - Generates an all-argument constructor.
+ */
+
+
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class HistoryDto {
-    private long historyId;
+    private String historyId;
     
     @NotNull(message="Patient ID cannot be null")
     private String patientId; 

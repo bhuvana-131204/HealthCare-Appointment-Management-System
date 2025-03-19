@@ -7,7 +7,12 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
-
+/**
+ * GlobalExceptionHandler is a global exception handler that handles exceptions thrown by any part of the application.
+ * It provides methods to handle specific exceptions and return appropriate HTTP status codes and messages.
+ * 
+ * @ControllerAdvice - Indicates that this class provides global exception handling.
+ */
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -15,6 +20,13 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(NoConsultationDetailsFoundException.class)
 	@ResponseStatus(HttpStatus.NOT_FOUND)
 	public String handleNoConsultationDetailsFoundException(NoConsultationDetailsFoundException ex) {
+		return ex.getMessage();
+	}
+	
+	
+	@ExceptionHandler(ConsultationAlreadyExistsException.class)
+	@ResponseStatus(HttpStatus.NOT_FOUND)
+	public String ConsultationAlreadyExistsException(ConsultationAlreadyExistsException ex) {
 		return ex.getMessage();
 	}
 	

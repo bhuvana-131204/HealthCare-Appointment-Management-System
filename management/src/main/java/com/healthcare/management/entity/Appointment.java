@@ -19,7 +19,7 @@ public class Appointment {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name="Appointment_id",nullable =false ,unique = true)
-	private int appointment_id;
+	private String appointment_id;
 	
 	@ManyToOne
 	@JoinColumn(name = "Doctor_id")

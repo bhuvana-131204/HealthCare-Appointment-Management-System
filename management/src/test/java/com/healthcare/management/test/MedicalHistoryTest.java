@@ -19,7 +19,10 @@ import com.healthcare.management.entity.Patient;
 import com.healthcare.management.exception.NoHistoryFoundException;
 import com.healthcare.management.exception.NoPatientFoundException;
 import com.healthcare.management.service.HistoryService;
-
+/**
+ * MedicalHistoryTest is a test class for the HistoryService.
+ * It uses Mockito to mock dependencies and JUnit 5 for testing.
+ */
 public class MedicalHistoryTest {
 
     @Mock
@@ -35,11 +38,15 @@ public class MedicalHistoryTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
     }
-
+    
+    /**
+     * Tests the addHistory method.
+     * Verifies that the method creates a new medical history record.
+     */
     @Test
     public void testAddHistory() {
         HistoryDto historyDto = new HistoryDto();
-        historyDto.setHistoryId(1L);
+        historyDto.setHistoryId("1");
         historyDto.setPatientId("2");
         historyDto.setHealthHistory("Test Health History");
 
@@ -47,7 +54,7 @@ public class MedicalHistoryTest {
         when(patientDAO.findById("2")).thenReturn(Optional.of(patient));
 
         MedicalHistory medicalHistory = new MedicalHistory();
-        medicalHistory.setHistory_id(1L);
+        medicalHistory.setHistoryId("1");
         medicalHistory.setPatientId("2");
         medicalHistory.setHealthHistory("Test Health History");
 
@@ -62,7 +69,10 @@ public class MedicalHistoryTest {
         verify(patientDAO, times(1)).findById("2");
         verify(historyDAO, times(1)).save(any(MedicalHistory.class));
     }
-    
+    /**
+     * Tests the addHistory method when no patient is found.
+     * Verifies that the method throws NoPatientFoundException.
+     */
     
     @Test
     public void testAddHistory_NoPatientFound() {
@@ -76,38 +86,50 @@ public class MedicalHistoryTest {
         });
     }
 
+    /**
+     * Tests the getMedicalHistoryByHistoryId method.
+     * Verifies that the method returns the correct medical history record.
+     */
     @Test
     public void testGetMedicalHistoryByHistoryId() {
         MedicalHistory medicalHistory = new MedicalHistory();
-        medicalHistory.setHistory_id(1L);
+        medicalHistory.setHistoryId("1");
         medicalHistory.setHealthHistory("Test Health History");
         //Patient patient = new Patient();
         medicalHistory.setPatientId("2");
 
-        when(historyDAO.findById(1L)).thenReturn(Optional.of(medicalHistory));
+        when(historyDAO.findById("1")).thenReturn(Optional.of(medicalHistory));
 
-        HistoryDto result = historyService.getMedicalHistoryByHistoryId(1L);
+        HistoryDto result = historyService.getMedicalHistoryByHistoryId("1");
 
         assertNotNull(result);
         assertEquals(1L, result.getHistoryId());
         assertEquals("Test Health History", result.getHealthHistory());
         assertEquals("2", result.getPatientId());
-        verify(historyDAO, times(1)).findById(1L);
+        verify(historyDAO, times(1)).findById("1");
     }
 
+    /**
+     * Tests the getMedicalHistoryByHistoryId method when no medical history is found.
+     * Verifies that the method throws NoHistoryFoundException.
+     */
     @Test
     public void testGetMedicalHistoryByHistoryId_NotFound() {
-        when(historyDAO.findById(1L)).thenReturn(Optional.empty());
+        when(historyDAO.findById("1")).thenReturn(Optional.empty());
 
         assertThrows(NoHistoryFoundException.class, () -> {
-            historyService.getMedicalHistoryByHistoryId(1L);
+            historyService.getMedicalHistoryByHistoryId("1");
         });
     }
-
+    
+    /**
+     * Tests the getHistoryByPatientId method.
+     * Verifies that the method returns the correct medical history record.
+     */
     @Test
     public void testGetHistoryByPatientId() {
         MedicalHistory medicalHistory = new MedicalHistory();
-        medicalHistory.setHistory_id(1L);
+        medicalHistory.setHistoryId("1");
         medicalHistory.setHealthHistory("Test Health History");
        // Patient patient = new Patient();
         medicalHistory.setPatientId("2");
@@ -121,6 +143,11 @@ public class MedicalHistoryTest {
         assertEquals("Test Health History", result.getHealthHistory());
         verify(historyDAO, times(1)).getMedicalHistoryByPatientId("patient1");
     }
+    
+    /**
+     * Tests the getHistoryByPatientId method when no medical history is found.
+     * Verifies that the method throws NoHistoryFoundException.
+     */
 
     @Test
     public void testGetHistoryByPatientId_NotFound() {
@@ -131,10 +158,15 @@ public class MedicalHistoryTest {
         });
     }
 
+    
+    /**
+     * Tests the updateMedicalHistory method.
+     * Verifies that the method updates the medical history record.
+     */
     @Test
     public void testUpdateMedicalHistory() {
         MedicalHistory medicalHistory = new MedicalHistory();
-        medicalHistory.setHistory_id(1L);
+        medicalHistory.setHistoryId("1");
         medicalHistory.setHealthHistory("Old Health History");
        // Patient patient = new Patient();
         medicalHistory.setPatientId("2");
@@ -152,7 +184,10 @@ public class MedicalHistoryTest {
         verify(historyDAO, times(1)).getMedicalHistoryByPatientId("patient1");
         verify(historyDAO, times(1)).save(any(MedicalHistory.class));
     }
-
+    /**
+     * Tests the updateMedicalHistory method when no medical history is found.
+     * Verifies that the method throws NoHistoryFoundException.
+     */
     @Test
     public void testUpdateMedicalHistory_NotFound() {
         HistoryDto historyDto = new HistoryDto();
@@ -164,11 +199,16 @@ public class MedicalHistoryTest {
             historyService.updateMedicalHistory("patient1", historyDto);
         });
     }
+    
+    /**
+     * Tests the deleteMedicalHistory method.
+     * Verifies that the method deletes the medical history record.
+     */
 
     @Test
     public void testDeleteMedicalHistory() {
         MedicalHistory medicalHistory = new MedicalHistory();
-        medicalHistory.setHistory_id(1L);
+        medicalHistory.setHistoryId("1");
        // Patient patient = new Patient();
         medicalHistory.setPatientId("2");
 
@@ -180,6 +220,11 @@ public class MedicalHistoryTest {
         verify(historyDAO, times(1)).delete(medicalHistory);
     }
 
+    
+    /**
+     * Tests the deleteMedicalHistory method when no medical history is found.
+     * Verifies that the method throws NoHistoryFoundException.
+     */
     @Test
     public void testDeleteMedicalHistory_NotFound() {
         when(historyDAO.getMedicalHistoryByPatientId("patient1")).thenReturn(null);

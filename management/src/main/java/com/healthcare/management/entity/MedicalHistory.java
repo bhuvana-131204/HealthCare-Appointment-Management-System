@@ -1,5 +1,7 @@
 package com.healthcare.management.entity;
 
+import java.util.UUID;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -8,11 +10,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.NamedQuery;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Table(name="MedicalHistory")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -22,8 +27,8 @@ public class MedicalHistory {
 	
 	@Id
 	@Column(name="History_id")
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long history_id;	
+	//@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private String historyId;	
 	
 	@Column(name = "Patient_id")
 	private String patientId;
@@ -31,5 +36,12 @@ public class MedicalHistory {
 	
 	@Column(name="DiseaseHistory")
 	private String healthHistory;
+	
+	@PrePersist
+    public void generateUUID() {
+        if (this.historyId == null || this.historyId.isEmpty()) {
+            this.historyId = UUID.randomUUID().toString();
+        }
+	}
 	
 }

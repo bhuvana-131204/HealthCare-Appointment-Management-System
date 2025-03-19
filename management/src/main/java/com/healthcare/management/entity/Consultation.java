@@ -1,20 +1,17 @@
 package com.healthcare.management.entity;
 
+import java.util.UUID;
+
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-//import com.fasterxml.jackson.annotation.JsonBackReference;
-//import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-//import jakarta.persistence.NamedQuery;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PrePersist;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,13 +22,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Consultation {
 		@Id
-		@GeneratedValue(strategy = GenerationType.IDENTITY)
+		//@GeneratedValue(strategy = GenerationType.IDENTITY)
 		@Column(name="Consultation_id" ,nullable = false)
-		private int consultationId; 
+		private String consultationId; 
 		
-//		@OneToOne(cascade=CascadeType.PERSIST)
-//		@JoinColumn(name = "Appointment_id")		
-		private int appointmentId;
+		private String appointmentId;
 		
 		@Column(name = "Notes")
 		@Size(max = 500)
@@ -41,7 +36,11 @@ public class Consultation {
 		@NotNull
 		private String prescription;
 		
-//		public void setAppointment(Appointment appointment) {
-//	        this.appointment = appointment;
-//	    }
+		@PrePersist
+	    public void generateUUID() {
+	        if (this.consultationId == null || this.consultationId.isEmpty()) {
+	            this.consultationId = UUID.randomUUID().toString();
+	        }
+		}
+
 }

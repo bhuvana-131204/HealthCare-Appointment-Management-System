@@ -2,6 +2,7 @@ package com.healthcare.management.dao;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -9,15 +10,32 @@ import org.springframework.data.repository.query.Param;
 
 import com.healthcare.management.entity.Consultation;
 
-public interface ConsultationDAO extends JpaRepository<Consultation, Integer> {
+
+/**
+ * ConsultationDAO is a Data Access Object (DAO) interface for managing consultation records.
+ * It extends JpaRepository to provide CRUD operations and custom query methods for Consultation entities.
+ * 
+ * @JpaRepository - Indicates that this interface is a JPA repository.
+ */
+
+public interface ConsultationDAO extends JpaRepository<Consultation, String> {
 	
-//	@Query(name="findConsultationDetailsByAppointmentId")
-//	public List<Consultation> findConsultationDetailsByAppointmentId(int appointment_id);
+	/**
+	 * Retrieves consultation records filtered by appointment ID.
+	 * 
+	 * @param appointmentId - The appointment ID to filter consultation records.
+	 * @return List<Consultation> - A list of consultation records filtered by appointment ID.
+	 */	
 	
-	//@Query("SELECT c from Consultation c where c.appointment.appointment_id=:appointment_Id")
 	@Query("SELECT c from Consultation c where c.appointmentId=:appointmentId")
-	public List<Consultation> findConsultationDetailsByAppointmentId(@Param("appointment_Id") int appointment_Id);
-	
-	Optional<Consultation>findByConsultationId(int consultationId);
+	public List<Consultation> findConsultationDetailsByAppointmentId(@Param("appointmentId") String appointment_Id);
+
+	/**
+	 * Retrieves a consultation record by consultation ID.
+	 * 
+	 * @param consultationId - The consultation ID to filter consultation records.
+	 * @return Optional<Consultation> - An optional containing the consultation record if found, or empty if not found.
+	 */
+	Optional<Consultation>findByConsultationId(String consultationId);
 	
 }	
