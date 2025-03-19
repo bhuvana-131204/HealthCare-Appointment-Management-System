@@ -1,5 +1,7 @@
 package com.healthcare.management.controller;
 
+import java.util.List;
+
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -66,8 +68,8 @@ public class HistoryController {
 	public ResponseEntity<Response<?>> getHistory(@PathVariable String patientId) {
 	    try {
 	        log.info("Fetching medical history for patient ID: {}", patientId);
-	        HistoryDto history = historyService.getHistoryByPatientId(patientId);
-	        Response<HistoryDto> response = new Response<>(true, HttpStatus.OK, history, null);
+	        List<HistoryDto> histories = historyService.getHistoryByPatientId(patientId);
+	        Response<List<HistoryDto>> response = new Response<>(true, HttpStatus.OK, histories, null);
 	        return new ResponseEntity<>(response, HttpStatus.OK);
 	    } catch (Exception ex) {
 	        log.error("Exception: {}", ex.getMessage());
@@ -106,7 +108,7 @@ public class HistoryController {
 	 * @return ResponseEntity<Response<?>> - The response entity containing the updated medical history details or an error message.
 	 */
 
-	@PutMapping("patient/{patientId}")
+	/*@PutMapping("patient/{patientId}")
 	public ResponseEntity<Response<?>> updateHistory(@PathVariable String patientId, @RequestBody @Valid HistoryDto historyDto) {
 	    try {
 	        log.info("Updating medical history for patient ID: {}", patientId);
@@ -118,7 +120,7 @@ public class HistoryController {
 	        Response<?> response = new Response<>(false, HttpStatus.INTERNAL_SERVER_ERROR, null, ex.getMessage());
 	        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 	    }
-	}
+	}*/
 
 	/**
 	 * Deletes a medical history record.
@@ -126,7 +128,7 @@ public class HistoryController {
 	 * @param patientID - The patient ID of the record to be deleted.
 	 * @return ResponseEntity<Response<?>> - The response entity indicating the result of the delete operation or an error message.
 	 */
-	@DeleteMapping("/delete/patient/{patientID}")
+	/*@DeleteMapping("/delete/patient/{patientID}")
 	public ResponseEntity<Response<?>> deleteHistory(@PathVariable String patientID) {
 	    try {
 	        log.info("Deleting medical history for patient ID: {}", patientID);
@@ -138,9 +140,21 @@ public class HistoryController {
 	        Response<?> response = new Response<>(false, HttpStatus.INTERNAL_SERVER_ERROR, null, ex.getMessage());
 	        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 	    }
+	}*/
+	
+	@DeleteMapping("/delete/patient/{patientId}")
+	public ResponseEntity<Response<?>> deleteHistory(@PathVariable String patientId) {
+	    try {
+	        log.info("Deleting medical history for patient ID: {}", patientId);
+	        historyService.deleteMedicalHistory(patientId);
+	        Response<?> response = new Response<>(true, HttpStatus.OK, null, "Successfully deleted medical history for patient ID: " + patientId);
+	        return new ResponseEntity<>(response, HttpStatus.OK);
+	    } catch (Exception ex) {
+	        log.error("Exception: {}", ex.getMessage());
+	        Response<?> response = new Response<>(false, HttpStatus.INTERNAL_SERVER_ERROR, null, ex.getMessage());
+	        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+	    }
 	}
-	
-	
 	
 	
 }

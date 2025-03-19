@@ -1,5 +1,7 @@
 package com.healthcare.management.dao;
 
+import java.util.List;
+
 //import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -26,5 +28,5 @@ public interface HistoryDAO extends JpaRepository<MedicalHistory, String> {
      * @return MedicalHistory - The medical history record filtered by patient ID.
      */
 	@Query("SELECT h FROM MedicalHistory h WHERE h.patientId = :patientId")
-    MedicalHistory getMedicalHistoryByPatientId(@Param("patientId") String patientId);
+    public List<MedicalHistory> getMedicalHistoryByPatientId(@Param("patientId") String patientId);
 }

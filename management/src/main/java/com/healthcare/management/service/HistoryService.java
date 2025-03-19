@@ -1,5 +1,8 @@
 package com.healthcare.management.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.healthcare.management.dao.HistoryDAO;
@@ -103,7 +106,7 @@ public class HistoryService {
 	 * @throws NoHistoryFoundException - If no medical history is found for the given patient ID.
 	 */
 	
-	public HistoryDto getHistoryByPatientId(String patientId) {
+	/*public HistoryDto getHistoryByPatientId(String patientId) {
 		log.info("Retrieving medical history details of patient with patient id " + patientId);
         MedicalHistory medicalHistory = historyDAO.getMedicalHistoryByPatientId(patientId);
         
@@ -117,7 +120,27 @@ public class HistoryService {
         historyDto.setPatientId(medicalHistory.getPatientId());
         
         return historyDto;
-    }
+    }*/
+	
+	 public List<HistoryDto> getHistoryByPatientId(String patientId) {
+	        log.info("Retrieving medical history details of patient with patient id " + patientId);
+	        List<MedicalHistory> medicalHistories = historyDAO.getMedicalHistoryByPatientId(patientId);
+	        
+	        if (medicalHistories.isEmpty()) {
+	            throw new NoHistoryFoundException("No Medical History exists for Patient ID: " + patientId);
+	        }
+	        
+	        List<HistoryDto> historyDtos = new ArrayList<>();
+	        for (MedicalHistory medicalHistory : medicalHistories) {
+	            HistoryDto historyDto = new HistoryDto();
+	            historyDto.setHistoryId(medicalHistory.getHistoryId());
+	            historyDto.setHealthHistory(medicalHistory.getHealthHistory());
+	            historyDto.setPatientId(medicalHistory.getPatientId());
+	            historyDtos.add(historyDto);
+	        }
+	        
+	        return historyDtos;
+	    }
 	
 	/**
 	 * Updates an existing medical history record by patient ID.
@@ -128,7 +151,7 @@ public class HistoryService {
 	 * @throws NoHistoryFoundException - If no medical history is found for the given patient ID.
 	 */
 	
-	public HistoryDto updateMedicalHistory(String patientId, HistoryDto medicalHistoryDTO) {
+	/*public HistoryDto updateMedicalHistory(String patientId, HistoryDto medicalHistoryDTO) {
         MedicalHistory medicalHistory = historyDAO.getMedicalHistoryByPatientId(patientId);
         if (medicalHistory == null) {
             throw new NoHistoryFoundException("No medical history exists for Patient ID: " + patientId);
@@ -143,7 +166,7 @@ public class HistoryService {
         historyDto.setPatientId(updatedMedicalHistory.getPatientId());
         
         return historyDto;
-    }
+    }*/
 	
 	/**
 	 * Deletes a medical history record by patient ID.
@@ -152,14 +175,17 @@ public class HistoryService {
 	 * @throws NoHistoryFoundException - If no medical history is found for the given patient ID.
 	 */
 	
-	public void deleteMedicalHistory(String patientId) {
-        MedicalHistory medicalHistory = historyDAO.getMedicalHistoryByPatientId(patientId);
-        if (medicalHistory == null) {
-            throw new NoHistoryFoundException("No medical history exists for Patient ID: " + patientId);
-        }
-        historyDAO.delete(medicalHistory);
-        log.info("Successfully deleted the medical history of Patient with id " + patientId);
-    }
+	 public void deleteMedicalHistory(String patientId) {
+		    log.info("Deleting medical history for patient ID: {}", patientId);
+		    List<MedicalHistory> medicalHistories = historyDAO.getMedicalHistoryByPatientId(patientId);
+		    
+		    if (medicalHistories.isEmpty()) {
+		        throw new NoHistoryFoundException("No Medical History exists for Patient ID: " + patientId);
+		    }
+		    
+		    historyDAO.deleteAll(medicalHistories);
+		    log.info("Successfully deleted the medical history of Patient with id " + patientId);
+		}
 	
 
 }
