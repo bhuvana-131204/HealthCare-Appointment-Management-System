@@ -1,8 +1,6 @@
 package com.availabilitySchedule.controller;
 
 import com.availabilitySchedule.dto.Response;
-import com.availabilitySchedule.exception.NoAvailabilityFoundException;
-import com.availabilitySchedule.exception.DatabaseException;
 import com.availabilitySchedule.service.AvailabilityService;
 import com.availabilitySchedule.model.Availability;
 import com.availabilitySchedule.model.Specialization;
@@ -16,108 +14,172 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * REST controller for managing availability.
+ * 
+ * @author Swapnil Rajesh
+ * @since 18/02/2025
+ */
 @RestController
 @RequestMapping("availability")
 @Slf4j
 public class AvailabilityController {
 
-	@Autowired
-	private AvailabilityService availabilityService;
+    @Autowired
+    private AvailabilityService availabilityService;
 
-	@PostMapping("/update/{availableId}/{unavailableId}")
-	public ResponseEntity<Response<String>> updateAvailability(@PathVariable String availableId,
-			@PathVariable String unavailableId) {
-		try {
-			availabilityService.updateAvailabilityStatus(availableId, unavailableId);
-			Response<String> response = new Response<>(true, HttpStatus.OK, "Availability updated successfully");
-			return new ResponseEntity<>(response, HttpStatus.OK);
-		} catch (DatabaseException e) {
-			log.error("Error in updateAvailability method", e);
-			Response<String> response = new Response<>(false, HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
-			return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
+    /**
+     * GET /AvailabilityId/{availabilityId} : Get availability by ID.
+     *
+     * @param availabilityId the ID of the availability
+     * @return the ResponseEntity with status 200 (OK) and the availability, or status 404 (Not Found)
+     */
+    @GetMapping("/AvailabilityId/{availabilityId}")
+    public ResponseEntity<Response<?>> viewById(@PathVariable String availabilityId) {
+        log.info("Fetching availability for ID: {}", availabilityId);
+        Availability availability = availabilityService.viewById(availabilityId);
+        Response<?> response = new Response<>(true, HttpStatus.OK, availability);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
-	@GetMapping("/doctor/{doctorId}/{date}")
-	public ResponseEntity<Response<List<Availability>>> getAvailabilityByDoctorIdAndDate(@PathVariable String doctorId,
-			@PathVariable LocalDate date) {
-		try {
-			List<Availability> availabilityList = availabilityService.getAvailabilityByDoctorIdAndDate(doctorId, date);
-			Response<List<Availability>> response = new Response<>(true, HttpStatus.OK, availabilityList);
-			return new ResponseEntity<>(response, HttpStatus.OK);
-		} catch (NoAvailabilityFoundException e) {
-			log.error("Error in getAvailability method", e);
-			Response<List<Availability>> response = new Response<>(false, HttpStatus.NOT_FOUND, null);
-			return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-		} catch (DatabaseException e) {
-			log.error("Error in getAvailability method", e);
-			Response<List<Availability>> response = new Response<>(false, HttpStatus.INTERNAL_SERVER_ERROR, null);
-			return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
+    /**
+     * PUT /update/{availableId}/reschedule/{unavailableId} : Update availability status.
+     *
+     * @param availableId the ID of the availability to be marked as available
+     * @param unavailableId the ID of the availability to be marked as unavailable
+     * @return the ResponseEntity with status 200 (OK) and a success message
+     */
+    @PutMapping("/update/{availableId}/reschedule/{unavailableId}")
+    public ResponseEntity<Response<?>> updateAvailability(@PathVariable String availableId,
+                                                          @PathVariable String unavailableId) {
+        log.info("Updating availability status: availableId={}, unavailableId={}", availableId, unavailableId);
+        availabilityService.updateAvailabilityStatus(availableId, unavailableId);
+        Response<?> response = new Response<>(true, HttpStatus.OK, "Availability updated successfully");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
-	@GetMapping("/specialization/{specialization}/{date}")
-	public ResponseEntity<Response<List<Availability>>> getAvailabilityBySpecializationAndDate(
-			@PathVariable Specialization specialization, @PathVariable LocalDate date) {
-		try {
-			List<Availability> availabilities = availabilityService
-					.getAvailabilityBySpecializationAndDate(specialization, date);
-			Response<List<Availability>> response = new Response<>(true, HttpStatus.OK, availabilities);
-			return new ResponseEntity<>(response, HttpStatus.OK);
-		} catch (NoAvailabilityFoundException e) {
-			log.error("Error in getAvailability method", e);
-			Response<List<Availability>> response = new Response<>(false, HttpStatus.NOT_FOUND, null);
-			return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-		} catch (DatabaseException e) {
-			log.error("Error in getAvailability method", e);
-			Response<List<Availability>> response = new Response<>(false, HttpStatus.INTERNAL_SERVER_ERROR, null);
-			return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
+    /**
+     * GET /doctor/{doctorId}/date/{date} : Get availability by doctor ID and date.
+     *
+     * @param doctorId the ID of the doctor
+     * @param date the date of the availability
+     * @return the ResponseEntity with status 200 (OK) and the list of availabilities, or status 404 (Not Found)
+     */
+    @GetMapping("/doctor/{doctorId}/date/{date}")
+    public ResponseEntity<Response<List<?>>> getAvailabilityByDoctorIdAndDate(@PathVariable String doctorId,
+                                                                              @PathVariable LocalDate date) {
+        log.info("Fetching availability for doctorId={} and date={}", doctorId, date);
+        List<Availability> availabilityList = availabilityService.getAvailabilityByDoctorIdAndDate(doctorId, date);
+        Response<List<?>> response = new Response<>(true, HttpStatus.OK, availabilityList);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
-	@GetMapping("/doctors")
-	public ResponseEntity<List<Availability>> viewAllAvailabilities() {
-		try {
-			List<Availability> availabilities = availabilityService.viewAllAvailabilities();
-			return new ResponseEntity<>(availabilities, HttpStatus.OK);
-		} catch (DatabaseException e) {
-			log.error("Error in viewAllAvailabilities method", e);
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
+    /**
+     * GET /specialization/{specialization}/date/{date} : Get availability by specialization and date.
+     *
+     * @param specialization the specialization of the doctor
+     * @param date the date of the availability
+     * @return the ResponseEntity with status 200 (OK) and the list of availabilities, or status 404 (Not Found)
+     */
+    @GetMapping("/specialization/{specialization}/date/{date}")
+    public ResponseEntity<Response<List<?>>> getAvailabilityBySpecializationAndDate(
+            @PathVariable Specialization specialization, @PathVariable LocalDate date) {
+        log.info("Fetching availability for specialization={} and date={}", specialization, date);
+        List<Availability> availabilities = availabilityService.getAvailabilityBySpecializationAndDate(specialization, date);
+        Response<List<?>> response = new Response<>(true, HttpStatus.OK, availabilities);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+    
+    /**
+     * GET /doctor/{doctorId}/date-range : Get availability by doctor ID and date range.
+     * 
+     * @param doctorId the ID of the doctor
+     * @param startDate the start date of the range
+     * @param endDate the end date of the range
+     * @return the ResponseEntity with status 200 (OK) and the list of availabilities, or status 404 (Not Found)
+     */
+    @GetMapping("/doctor/{doctorId}/date-range")
+    public ResponseEntity<Response<List<?>>> getAvailabilityByDoctorIdAndDateRange(
+            @PathVariable String doctorId,
+            @RequestParam LocalDate startDate,
+            @RequestParam LocalDate endDate) {
+        log.info("Fetching availability for doctorId={}, startDate={}, endDate={}", doctorId, startDate, endDate);
+        List<Availability> availabilities = availabilityService.getAvailabilityByDoctorIdAndDateRange(doctorId, startDate, endDate);
+        Response<List<?>> response = new Response<>(true, HttpStatus.OK, availabilities);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
-	@PostMapping("/block/{availabilityId}")
-	public ResponseEntity<Response<String>> blockTimeSlot(@PathVariable String availabilityId) {
-		try {
-			availabilityService.blockTimeSlot(availabilityId);
-			Response<String> response = new Response<>(true, HttpStatus.OK, "Time slot blocked successfully");
-			return new ResponseEntity<>(response, HttpStatus.OK);
-		} catch (NoAvailabilityFoundException e) {
-			log.error("Error in blockTimeSlot method", e);
-			Response<String> response = new Response<>(false, HttpStatus.NOT_FOUND, e.getMessage());
-			return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-		} catch (DatabaseException e) {
-			log.error("Error in blockTimeSlot method", e);
-			Response<String> response = new Response<>(false, HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
-			return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
+    /**
+     * GET /specialization/{specialization}/date-range : Get availability by specialization and date range.
+     * 
+     * @param specialization the specialization of the doctor
+     * @param startDate the start date of the range
+     * @param endDate the end date of the range
+     * @return the ResponseEntity with status 200 (OK) and the list of availabilities, or status 404 (Not Found)
+     */
+    @GetMapping("/specialization/{specialization}/date-range")
+    public ResponseEntity<Response<List<?>>> getAvailabilityBySpecializationAndDateRange(
+            @PathVariable Specialization specialization,
+            @RequestParam LocalDate startDate,
+            @RequestParam LocalDate endDate) {
+        log.info("Fetching availability for specialization={}, startDate={}, endDate={}", specialization, startDate, endDate);
+        List<Availability> availabilities = availabilityService.getAvailabilityBySpecializationAndDateRange(specialization, startDate, endDate);
+        Response<List<?>> response = new Response<>(true, HttpStatus.OK, availabilities);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
-	@PostMapping("/delete/{availabilityId}")
-	public ResponseEntity<Response<String>> deleteAvailability(@PathVariable String availabilityId) {
-		try {
-			availabilityService.deleteAvailability(availabilityId);
-			Response<String> response = new Response<>(true, HttpStatus.OK, "Availability deleted successfully");
-			return new ResponseEntity<>(response, HttpStatus.OK);
-		} catch (NoAvailabilityFoundException e) {
-			log.error("Error in deleteAvailability method", e);
-			Response<String> response = new Response<>(false, HttpStatus.NOT_FOUND, e.getMessage());
-			return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-		} catch (DatabaseException e) {
-			log.error("Error in deleteAvailability method", e);
-			Response<String> response = new Response<>(false, HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
-			return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
+    /**
+     * GET /doctors : Get all availabilities.
+     *
+     * @return the ResponseEntity with status 200 (OK) and the list of all availabilities
+     */
+    @GetMapping("/doctors")
+    public ResponseEntity<Response<List<?>>> viewAllAvailabilities() {
+        log.info("Fetching all availabilities.");
+        List<Availability> availabilities = availabilityService.viewAllAvailabilities();
+        Response<List<?>> response = new Response<>(true, HttpStatus.OK, availabilities);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
+    /**
+     * PUT /block/{availabilityId} : Block a time slot.
+     *
+     * @param availabilityId the ID of the availability to be blocked
+     * @return the ResponseEntity with status 200 (OK) and a success message
+     */
+    @PutMapping("/block/{availabilityId}")
+    public ResponseEntity<Response<?>> blockTimeSlot(@PathVariable String availabilityId) {
+        log.info("Blocking time slot with ID: {}", availabilityId);
+        availabilityService.blockTimeSlot(availabilityId);
+        Response<?> response = new Response<>(true, HttpStatus.OK, "Time slot blocked successfully");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    /**
+     * DELETE /delete/{availabilityId} : Delete an availability.
+     *
+     * @param availabilityId the ID of the availability to be deleted
+     * @return the ResponseEntity with status 200 (OK) and a success message
+     */
+    @DeleteMapping("/delete/{availabilityId}")
+    public ResponseEntity<Response<?>> deleteAvailability(@PathVariable String availabilityId) {
+        log.info("Deleting availability with ID: {}", availabilityId);
+        availabilityService.deleteAvailability(availabilityId);
+        Response<?> response = new Response<>(true, HttpStatus.OK, "Availability deleted successfully");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+    
+    /**
+     * PUT /release/{availabilityId} : Release an availability.
+     *
+     * @param availabilityId the ID of the availability to be released
+     * @return the ResponseEntity with status 200 (OK) and a success message
+     */
+    @PutMapping("/release/{availabilityId}")
+    public ResponseEntity<Response<?>> releaseAvailabilityById(@PathVariable String availabilityId) {
+        log.info("Releasing availability with ID: {}", availabilityId);
+        availabilityService.releaseAvailabilityById(availabilityId);
+        Response<?> response = new Response<>(true, HttpStatus.OK, null);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }

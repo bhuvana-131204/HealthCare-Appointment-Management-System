@@ -2,6 +2,14 @@ package com.availabilitySchedule.dto;
 
 import org.springframework.http.HttpStatus;
 
+/**
+ * Generic Response class for API responses.
+ * 
+ * @param <T> the type of the response data
+ * 
+ * @author Swapnil Rajesh
+ * @since 18/02/2025
+ */
 public class Response<T> {
     private Boolean success;
     private HttpStatus status;

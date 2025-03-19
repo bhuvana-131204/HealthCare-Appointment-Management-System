@@ -9,6 +9,13 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.util.UUID;
 
+/**
+ * Entity representing availability.
+ * 
+ * @author Swapnil Rajesh
+ * @since 18/02/2025
+ */
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -18,9 +25,6 @@ public class Availability {
 	@Id
 	@Column(name = "availability_id", nullable = false, unique = true)
 	private String availabilityId;
-
-	@Column(name = "doctor_name", nullable = true)
-	private String doctorName;
 
 	@Column(name = "doctor_id", nullable = true)
 	private String doctorId;

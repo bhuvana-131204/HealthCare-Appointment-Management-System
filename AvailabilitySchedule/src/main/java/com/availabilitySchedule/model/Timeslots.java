@@ -1,5 +1,14 @@
 package com.availabilitySchedule.model;
 
+/**
+ * Enum representing different timeslots.
+ * 
+ * Each timeslot has a display name.
+ * 
+ * @author Swapnil Rajesh
+ * @since 18/02/2025
+ */
+
 public enum Timeslots {
     NINE_TO_ELEVEN("9:00 - 11:00"),
     ELEVEN_TO_ONE("11:00 - 1:00"),
