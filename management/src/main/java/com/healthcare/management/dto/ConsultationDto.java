@@ -31,4 +31,7 @@ public class ConsultationDto {
     
     @NotNull(message="Prescription cannot be null")
     private String prescription;
+    
+    
+    
 }
