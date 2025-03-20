@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.UUID;
 @Entity
@@ -24,7 +25,7 @@ public class Appointment {
     @Column(name="appointment_id", nullable = false, unique = true)
     private String appointmentId;
     @Enumerated(EnumType.STRING)
-    @Column(name = "time_slot",nullable = false)
+    @Column(name = "time_slot")
     private TimeSlots timeSlot;
 
     @Enumerated(EnumType.STRING)
@@ -40,7 +41,7 @@ public class Appointment {
     
     
     @Column(name = "date",nullable = false)
-    private Date date;
+    private LocalDate date;
     
     @Column(name = "availability_id",nullable = false,unique=true)
     private String availabilityId;

@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 //import java.time.LocalDateTime;
 import java.util.*;
 
@@ -14,8 +15,9 @@ import java.util.*;
 @AllArgsConstructor
 public class AvailabilityDto {
     private String availabilityId;
-    private TimeSlots slots;
-    private Date date;
+    private TimeSlots timeSlots;
+    private LocalDate date;
     private String doctorId;
     private Specialization specialization;
+    
 }

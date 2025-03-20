@@ -1,5 +1,6 @@
 package com.dataBase.automate.dto;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 import com.dataBase.automate.model.Status;
@@ -17,7 +18,7 @@ public class AppointmentDto {
     private TimeSlots timeSlot;
     private Status status;
     private String doctorId;
-    private Date date;
+    private LocalDate date;
     private String availabilityId;
    
    

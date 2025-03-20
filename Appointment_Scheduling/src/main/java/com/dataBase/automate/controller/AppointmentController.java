@@ -8,7 +8,7 @@ import com.dataBase.automate.exception.AvailabilityNotFoundException;
 import com.dataBase.automate.exception.SpecializationNotFoundException;
 import com.dataBase.automate.exception.TimeSlotNotFoundException;
 import com.dataBase.automate.model.Appointment;
-import com.dataBase.automate.model.Availability;
+//import com.dataBase.automate.model.Availability;
 import com.dataBase.automate.model.Specialization;
 import com.dataBase.automate.model.TimeSlots;
 import com.dataBase.automate.service.AppointmentService;
@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,8 +43,8 @@ public class AppointmentController {
      * @param availabilityId the ID of the availability
      * @return ResponseEntity containing the created appointment
      */
-    @PostMapping("/create/{availabilityId}")
-    public ResponseEntity<Response<Appointment>> createAppointment(@PathVariable String availabilityId) {
+    @GetMapping("/create/{availabilityId}")
+    public ResponseEntity<Response<?>> createAppointment(@PathVariable String availabilityId) {
         try {
             Appointment appointment = appointmentService.createAppointment(availabilityId);
             Response<Appointment> response = new Response<>(true, HttpStatus.CREATED, appointment, null);
@@ -61,14 +62,14 @@ public class AppointmentController {
      * @return ResponseEntity containing the list of appointments
      */
     @GetMapping("/view")
-    public ResponseEntity<Response<List<Appointment>>> viewAppointments() {
+    public ResponseEntity<Response<List<?>>> viewAppointments() {
         try {
             List<Appointment> appointments = appointmentService.viewAppointments();
-            Response<List<Appointment>> response = new Response<>(true, HttpStatus.OK, appointments, null);
+            Response<List<?>> response = new Response<>(true, HttpStatus.OK, appointments, null);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception ex) {
             log.error("Exception: {}", ex.getMessage());
-            Response<List<Appointment>> response = new Response<>(false, HttpStatus.INTERNAL_SERVER_ERROR, null, ex.getMessage());
+            Response<List<?>> response = new Response<>(false, HttpStatus.INTERNAL_SERVER_ERROR, null, ex.getMessage());
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -80,15 +81,15 @@ public class AppointmentController {
      * @return ResponseEntity containing the appointment
      */
     @GetMapping("/view/{id}")
-    public ResponseEntity<Response<Appointment>> fetchAppointmentById(@PathVariable String id) {
+    public ResponseEntity<Response<?>> fetchAppointmentById(@PathVariable String id) {
         try {
             Appointment appointment = appointmentService.fetchAppointmentById(id)
                 .orElseThrow(() -> new AppointmentNotFoundException("Appointment not found for ID: " + id));
-            Response<Appointment> response = new Response<>(true, HttpStatus.OK, appointment, null);
+            Response<?> response = new Response<>(true, HttpStatus.OK, appointment, null);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (AppointmentNotFoundException ex) {
             log.error("Exception: {}", ex.getMessage());
-            Response<Appointment> response = new Response<>(false, HttpStatus.NOT_FOUND, null, ex.getMessage());
+            Response<?> response = new Response<>(false, HttpStatus.NOT_FOUND, null, ex.getMessage());
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
     }
@@ -96,23 +97,23 @@ public class AppointmentController {
     /**
      * Updates an appointment by ID and availability ID.
      * 
-     * @param id the ID of the appointment
+     * @param appointmentId the ID of the appointment
      * @param availabilityId the new availability ID
      * @return ResponseEntity containing the updated appointment
      */
-    @PutMapping("/update/{id}/{availabilityId}")
-    public ResponseEntity<Response<Appointment>> updateAppointment(@PathVariable String id, @PathVariable String availabilityId) {
+    @PutMapping("/update/{appointmentId}/{availabilityId}")
+    public ResponseEntity<Response<?>> updateAppointment(@PathVariable String appointmentId, @PathVariable String availabilityId) {
         try {
-            Appointment updatedAppointment = appointmentService.updateAppointment(id, availabilityId);
+            Appointment updatedAppointment = appointmentService.updateAppointment(appointmentId, availabilityId);
             Response<Appointment> response = new Response<>(true, HttpStatus.OK, updatedAppointment, null);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (AppointmentNotFoundException ex) {
             log.error("Exception: {}", ex.getMessage());
-            Response<Appointment> response = new Response<>(false, HttpStatus.NOT_FOUND, null, ex.getMessage());
+            Response<?> response = new Response<>(false, HttpStatus.NOT_FOUND, null, ex.getMessage());
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         } catch (AvailabilityConflictException ex) {
             log.error("Exception: {}", ex.getMessage());
-            Response<Appointment> response = new Response<>(false, HttpStatus.CONFLICT, null, ex.getMessage());
+            Response<?> response = new Response<>(false, HttpStatus.CONFLICT, null, ex.getMessage());
             return new ResponseEntity<>(response, HttpStatus.CONFLICT);
         }
     }
@@ -123,18 +124,18 @@ public class AppointmentController {
      * @param id the ID of the appointment
      * @return ResponseEntity indicating the cancellation status
      */
-    @DeleteMapping("/cancel/{id}")
-    public ResponseEntity<Response<Void>> cancelAppointment(@PathVariable String id) {
+    @DeleteMapping("/cancel/{AppointmentId}")
+    public ResponseEntity<Response<?>> cancelAppointment(@PathVariable String AppointmentId) {
         try {
-            Appointment appointment = appointmentService.fetchAppointmentById(id)
-                .orElseThrow(() -> new AppointmentNotFoundException("Appointment not found for ID: " + id));
-            appointmentService.cancelAppointment(id);
-            appointmentService.notifyDoctorForRemoval(appointment.getDoctorId(), appointment.getPatientId(), id);
-            Response<Void> response = new Response<>(true, HttpStatus.NO_CONTENT, null, null);
-            return new ResponseEntity<>(response, HttpStatus.NO_CONTENT);
+            appointmentService.fetchAppointmentById(AppointmentId)
+                .orElseThrow(() -> new AppointmentNotFoundException("Appointment not found for ID: " + AppointmentId));
+            appointmentService.cancelAppointment(AppointmentId);
+           
+            Response<?> response = new Response<>(true, HttpStatus.ACCEPTED, null, null);
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (AppointmentNotFoundException ex) {
             log.error("Exception: {}", ex.getMessage());
-            Response<Void> response = new Response<>(false, HttpStatus.NOT_FOUND, null, ex.getMessage());
+            Response<?> response = new Response<>(false, HttpStatus.NOT_FOUND, null, ex.getMessage());
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
     }
@@ -146,14 +147,14 @@ public class AppointmentController {
      * @return ResponseEntity containing the list of appointments
      */
     @GetMapping("/viewByPatient/{patientId}")
-    public ResponseEntity<Response<List<Appointment>>> fetchAppointmentsByPatientId(@PathVariable String patientId) {
+    public ResponseEntity<Response<List<?>>> fetchAppointmentsByPatientId(@PathVariable String patientId) {
         try {
             List<Appointment> appointments = appointmentService.fetchAppointmentsByPatientId(patientId);
-            Response<List<Appointment>> response = new Response<>(true, HttpStatus.OK, appointments, null);
+            Response<List<?>> response = new Response<>(true, HttpStatus.OK, appointments, null);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception ex) {
             log.error("Exception: {}", ex.getMessage());
-            Response<List<Appointment>> response = new Response<>(false, HttpStatus.INTERNAL_SERVER_ERROR, null, ex.getMessage());
+            Response<List<?>> response = new Response<>(false, HttpStatus.INTERNAL_SERVER_ERROR, null, ex.getMessage());
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -165,14 +166,14 @@ public class AppointmentController {
      * @return ResponseEntity containing the list of appointments
      */
     @GetMapping("/viewByDoctor/{doctorId}")
-    public ResponseEntity<Response<List<Appointment>>> fetchAppointmentsByDoctorId(@PathVariable String doctorId) {
+    public ResponseEntity<Response<List<?>>> fetchAppointmentsByDoctorId(@PathVariable String doctorId) {
         try {
             List<Appointment> appointments = appointmentService.fetchAppointmentsByDoctorId(doctorId);
-            Response<List<Appointment>> response = new Response<>(true, HttpStatus.OK, appointments, null);
+            Response<List<?>> response = new Response<>(true, HttpStatus.OK, appointments, null);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception ex) {
             log.error("Exception: {}", ex.getMessage());
-            Response<List<Appointment>> response = new Response<>(false, HttpStatus.INTERNAL_SERVER_ERROR, null, ex.getMessage());
+            Response<List<?>> response = new Response<>(false, HttpStatus.INTERNAL_SERVER_ERROR, null, ex.getMessage());
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -185,14 +186,15 @@ public class AppointmentController {
      * @return ResponseEntity containing the list of available doctors
      */
     @GetMapping("/dateAndSpecialization/{date}/{specialization}")
-    public ResponseEntity<Response<List<String>>> getAvailableDoctorsByDateAndSpecialization(@PathVariable String date, @PathVariable String specialization) {
+    public ResponseEntity<Response<List<?>>> getAvailableDoctorsByDateAndSpecialization(@PathVariable LocalDate date, @PathVariable Specialization specialization) {
         try {
-            List<String> availableDoctors = appointmentService.getAvailableDoctorsByDateAndSpecialization(date, specialization);
-            Response<List<String>> response = new Response<>(true, HttpStatus.OK, availableDoctors, null);
+        	List<AvailabilityDto> availableDoctors = appointmentService.getAvailableDoctorsByDateAndSpecialization(date, specialization);
+            Response<List<?>> response = new Response<>(true, HttpStatus.OK, availableDoctors, null);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception ex) {
+        	ex.printStackTrace();
             log.error("Exception: {}", ex.getMessage());
-            Response<List<String>> response = new Response<>(false, HttpStatus.INTERNAL_SERVER_ERROR, null, ex.getMessage());
+            Response<List<?>> response = new Response<>(false, HttpStatus.INTERNAL_SERVER_ERROR, null, ex.getMessage());
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -205,14 +207,14 @@ public class AppointmentController {
      * @return ResponseEntity containing the list of available doctors
      */
     @GetMapping("/dateAndId/{date}/{doctorId}")
-    public ResponseEntity<Response<List<String>>> getAvailableDoctorsByDateAndId(@PathVariable String date, @PathVariable String doctorId) {
+    public ResponseEntity<Response<List<?>>> getAvailableDoctorsByDateAndId(@PathVariable LocalDate date, @PathVariable String doctorId) {
         try {
-            List<String> availableDoctors = appointmentService.getAvailableDoctorsByDateAndId(date, doctorId);
-            Response<List<String>> response = new Response<>(true, HttpStatus.OK, availableDoctors, null);
+        	List<AvailabilityDto> availableDoctors = appointmentService.getAvailableDoctorsByDateAndId(date, doctorId);
+            Response<List<?>> response = new Response<>(true, HttpStatus.OK, availableDoctors, null);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception ex) {
             log.error("Exception: {}", ex.getMessage());
-            Response<List<String>> response = new Response<>(false, HttpStatus.INTERNAL_SERVER_ERROR, null, ex.getMessage());
+            Response<List<?>> response = new Response<>(false, HttpStatus.INTERNAL_SERVER_ERROR, null, ex.getMessage());
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -224,39 +226,64 @@ public class AppointmentController {
      * @return ResponseEntity indicating the notification status
      */
     @PutMapping("/CancelledNotification/{appointmentId}")
-    public ResponseEntity<Response<Void>> AppointmentNotification(@PathVariable String appointmentId) {
+    public ResponseEntity<Response<?>> AppointmentNotification(@PathVariable String appointmentId) {
         try {
             appointmentService.updationAfterNotification(appointmentId);
-            Response<Void> response = new Response<>(true, HttpStatus.OK, null, null);
+            Response<?> response = new Response<>(true, HttpStatus.OK, null, null);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (AppointmentNotFoundException ex) {
             log.error("Exception: {}", ex.getMessage());
-            Response<Void> response = new Response<>(false, HttpStatus.NOT_FOUND, null, ex.getMessage());
+            Response<?> response = new Response<>(false, HttpStatus.NOT_FOUND, null, ex.getMessage());
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         } catch (Exception ex) {
             log.error("Exception: {}", ex.getMessage());
-            Response<Void> response = new Response<>(false, HttpStatus.BAD_REQUEST, null, ex.getMessage());
+            Response<?> response = new Response<>(false, HttpStatus.BAD_REQUEST, null, ex.getMessage());
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
     }
-
+    @GetMapping("/doctorIdAndDateRange/{doctorId}")
+    public ResponseEntity<Response<List<?>>> getAvailabilityByDoctorIdAndDateRange(@PathVariable String doctorId,@RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
+        try {
+        	List<AvailabilityDto> availableDoctors = appointmentService.getAvailabilityByDoctorIdAndDateRange(doctorId, startDate,endDate);
+            Response<List<?>> response = new Response<>(true, HttpStatus.OK, availableDoctors, null);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception ex) {
+        	ex.printStackTrace();
+            log.error("Exception: {}", ex.getMessage());
+            Response<List<?>> response = new Response<>(false, HttpStatus.INTERNAL_SERVER_ERROR, null, ex.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @GetMapping("/specializationAndDateRange/{specialization}")
+    public ResponseEntity<Response<List<?>>> getAvailabilityBySpecializationAndDateRange(@PathVariable Specialization specialization,@RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
+        try {
+        	List<AvailabilityDto> availableDoctors = appointmentService.getAvailabilityBySpecializationAndDateRange(specialization, startDate,endDate);
+            Response<List<?>> response = new Response<>(true, HttpStatus.OK, availableDoctors, null);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception ex) {
+        	ex.printStackTrace();
+            log.error("Exception: {}", ex.getMessage());
+            Response<List<?>> response = new Response<>(false, HttpStatus.INTERNAL_SERVER_ERROR, null, ex.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
     /**
      * Gets available doctors.
      * 
      * @return ResponseEntity containing the list of available doctors
      */
-    @GetMapping("/availableDoctors")
-    public ResponseEntity<Response<List<AvailabilityDto>>> getAvailableDoctors() {
-        try {
-            List<AvailabilityDto> availableDoctors = appointmentService.getAvailableDoctors();
-            Response<List<AvailabilityDto>> response = new Response<>(true, HttpStatus.OK, availableDoctors, null);
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (Exception ex) {
-            log.error("Exception: {}", ex.getMessage());
-            Response<List<AvailabilityDto>> response = new Response<>(false, HttpStatus.INTERNAL_SERVER_ERROR, null, ex.getMessage());
-            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+//    @GetMapping("/availableDoctors")
+//    public ResponseEntity<Response<List<?>>> getAvailableDoctors() {
+//        try {
+//            List<AvailabilityDto> availableDoctors = appointmentService.getAvailableDoctors();
+//            Response<List<?>> response = new Response<>(true, HttpStatus.OK, availableDoctors, null);
+//            return new ResponseEntity<>(response, HttpStatus.OK);
+//        } catch (Exception ex) {
+//            log.error("Exception: {}", ex.getMessage());
+//            Response<List<?>> response = new Response<>(false, HttpStatus.INTERNAL_SERVER_ERROR, null, ex.getMessage());
+//            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 
    
     
@@ -268,36 +295,36 @@ public class AppointmentController {
     * @param availability DTO
     * @return ResponseEntity indicating the status of the operation
     */
-  @PostMapping("/setDoctor")
-  public ResponseEntity<Response<Void>> setAvailableDoctor(@RequestBody AvailabilityDto availabilityDto) {
-      try {
-          appointmentService.setAvailableDoctor(availabilityDto);
-          Response<Void> response = new Response<>(true, HttpStatus.OK, null, null);
-          return new ResponseEntity<>(response, HttpStatus.OK);
-      } catch (Exception ex) {
-          log.error("Exception: {}", ex.getMessage());
-          Response<Void> response = new Response<>(false, HttpStatus.INTERNAL_SERVER_ERROR, null, ex.getMessage());
-          return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-      }
-  }
+//  @PostMapping("/setDoctor")
+//  public ResponseEntity<Response<?>> setAvailableDoctor(@RequestBody AvailabilityDto availabilityDto) {
+//      try {
+//          appointmentService.setAvailableDoctor(availabilityDto);
+//          Response<?> response = new Response<>(true, HttpStatus.OK, null, null);
+//          return new ResponseEntity<>(response, HttpStatus.OK);
+//      } catch (Exception ex) {
+//          log.error("Exception: {}", ex.getMessage());
+//          Response<?> response = new Response<>(false, HttpStatus.INTERNAL_SERVER_ERROR, null, ex.getMessage());
+//          return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+//      }
+//  }
 
     /**
      * Shows availability of doctors.
      * 
      * @return ResponseEntity containing the list of doctor time slots
      */
-    @GetMapping("/showAvailability")
-    public ResponseEntity<Response<List<String>>> showAvailability() {
-        try {
-            List<String> doctorTimeSlots = appointmentService.showAvailability();
-            Response<List<String>> response = new Response<>(true, HttpStatus.OK, doctorTimeSlots, null);
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (Exception ex) {
-            log.error("Exception: {}", ex.getMessage());
-            Response<List<String>> response = new Response<>(false, HttpStatus.INTERNAL_SERVER_ERROR, null, ex.getMessage());
-            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+//    @GetMapping("/showAvailability")
+//    public ResponseEntity<Response<List<?>>> showAvailability() {
+//        try {
+//            List<String> doctorTimeSlots = appointmentService.showAvailability();
+//            Response<List<?>> response = new Response<>(true, HttpStatus.OK, doctorTimeSlots, null);
+//            return new ResponseEntity<>(response, HttpStatus.OK);
+//        } catch (Exception ex) {
+//            log.error("Exception: {}", ex.getMessage());
+//            Response<List<?>> response = new Response<>(false, HttpStatus.INTERNAL_SERVER_ERROR, null, ex.getMessage());
+//            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 
     /**
      * Notifies completion of an appointment.
@@ -306,18 +333,18 @@ public class AppointmentController {
      * @return ResponseEntity indicating the notification status
      */
     @PutMapping("/notifyCompletion/{appointmentId}")
-    public ResponseEntity<Response<Void>> notifyCompletion(@PathVariable String appointmentId) {
+    public ResponseEntity<Response<?>> notifyCompletion(@PathVariable String appointmentId) {
         try {
             appointmentService.notifyAfterCompletion(appointmentId);
-            Response<Void> response = new Response<>(true, HttpStatus.OK, null, null);
+            Response<?> response = new Response<>(true, HttpStatus.OK, null, null);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (AppointmentNotFoundException ex) {
             log.error("Exception: {}", ex.getMessage());
-            Response<Void> response = new Response<>(false, HttpStatus.NOT_FOUND, null, ex.getMessage());
+            Response<?> response = new Response<>(false, HttpStatus.NOT_FOUND, null, ex.getMessage());
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         } catch (Exception ex) {
             log.error("Exception: {}", ex.getMessage());
-            Response<Void> response = new Response<>(false, HttpStatus.INTERNAL_SERVER_ERROR, null, ex.getMessage());
+            Response<?> response = new Response<>(false, HttpStatus.INTERNAL_SERVER_ERROR, null, ex.getMessage());
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -331,9 +358,9 @@ public class AppointmentController {
      * @return ResponseEntity containing the error message
      */
     @ExceptionHandler(AppointmentNotFoundException.class)
-    public ResponseEntity<Response<String>> handleAppointmentNotFoundException(AppointmentNotFoundException ex) {
+    public ResponseEntity<Response<?>> handleAppointmentNotFoundException(AppointmentNotFoundException ex) {
         log.error("Exception: {}", ex.getMessage());
-        Response<String> response = new Response<>(false, HttpStatus.NOT_FOUND, null, ex.getMessage());
+        Response<?> response = new Response<>(false, HttpStatus.NOT_FOUND, null, ex.getMessage());
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
@@ -344,9 +371,9 @@ public class AppointmentController {
      * @return ResponseEntity containing the error message
      */
     @ExceptionHandler(AvailabilityNotFoundException.class)
-    public ResponseEntity<Response<String>> handleAvailabilityNotFoundException(AvailabilityNotFoundException ex) {
+    public ResponseEntity<Response<?>> handleAvailabilityNotFoundException(AvailabilityNotFoundException ex) {
         log.error("Exception: {}", ex.getMessage());
-        Response<String> response = new Response<>(false, HttpStatus.NOT_FOUND, null, ex.getMessage());
+        Response<?> response = new Response<>(false, HttpStatus.NOT_FOUND, null, ex.getMessage());
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 }
