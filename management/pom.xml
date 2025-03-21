@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.healthcare</groupId>
-	<artifactId>management</artifactId>
+	<artifactId>consultation-module</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>management</name>
+	<name>Consultation and Medical History Module</name>
 	<description>Project for HealthCare Appointment Management</description>
 	<url/>
 	<licenses>
@@ -109,7 +109,30 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
-	       
+	       <dependency>
+			    <groupId>org.springframework.boot</groupId>
+			    <artifactId>spring-boot-starter-security</artifactId>
+			</dependency>
+		   <dependency>
+				<groupId>io.jsonwebtoken</groupId>
+				<artifactId>jjwt-api</artifactId>
+				<version>0.11.5</version>
+		   </dependency>
+			<dependency>
+				<groupId>io.jsonwebtoken</groupId>
+				<artifactId>jjwt-impl</artifactId>
+				<version>0.11.5</version>
+			</dependency>
+		    <dependency>
+				<groupId>io.jsonwebtoken</groupId>
+				<artifactId>jjwt-jackson</artifactId>
+				<version>0.11.5</version>
+		    </dependency>
+		    
+		    <dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-actuator</artifactId>
+			</dependency>
 		 
 	</dependencies>
 
