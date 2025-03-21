@@ -12,6 +12,7 @@ import com.availabilitySchedule.model.Status;
 import com.availabilitySchedule.model.Timeslots;
 import com.availabilitySchedule.repository.AvailabilityRepository;
 
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,14 +50,36 @@ public class AvailabilityService {
 	/**
 	 * Initializes availability if the repository is empty.
 	 */
-//	@PostConstruct
-//	public void initializeAvailability() {
-//		if (availabilityRepository.count() == 0) {
-//			log.info("Initializing availability for the first time.");
-//			updateAvailabilityForWeek();
-//			updatePastDates();
-//		}
-//	}
+	@PostConstruct
+	public void initializeAvailability() {
+		if (availabilityRepository.count() == 0) {
+			log.info("Initializing availability for the first time.");
+			List<DoctorAvailabilityDto> doctors = doctorFeignClient.getAllDoctors();
+	        
+	        LocalDate nextMonday = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+
+	        // Check if availability for next week already exists
+	        boolean nextWeekExists = availabilityRepository.existsByDateBetween(nextMonday, nextMonday.plusDays(4));
+
+	        if (!nextWeekExists) {
+	            for (DoctorAvailabilityDto doctor : doctors) {
+	                for (int i = 0; i < 5; i++) {
+	                    LocalDate date = nextMonday.plusDays(i);
+
+	                    for (Timeslots timeslot : Timeslots.values()) {
+	                        AvailabilityDTO dto = new AvailabilityDTO(null, doctor.getDoctorId(), doctor.getSpecialization(), date, timeslot);
+	                        Availability availability = dto.toEntity();
+	                        availabilityRepository.save(availability);
+	                    }
+	                }
+	            }
+	            log.info("Availability updated for the week starting from {}", nextMonday);
+	        } else {
+	            log.info("Availability for the week starting from {} already exists. No new entries added.", nextMonday);
+	        }
+			updatePastDates();
+		}
+	}
 
 	@Scheduled(cron = "0 * * * * ?") // Runs every minute
     public void checkAndInitializeNextWeekAvailability() {
