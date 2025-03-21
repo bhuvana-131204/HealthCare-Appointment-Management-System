@@ -8,6 +8,12 @@ import org.springframework.stereotype.Component;
  
 import lombok.extern.slf4j.Slf4j;
  
+/**
+ * Logger manger for  appointments.
+ * 
+ * @Author Sanjay R
+ * @Since 2025-03-18
+ */
 @Slf4j
 @Aspect
 @Component

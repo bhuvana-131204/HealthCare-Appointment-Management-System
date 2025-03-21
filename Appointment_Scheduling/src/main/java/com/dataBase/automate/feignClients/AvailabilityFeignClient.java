@@ -15,7 +15,12 @@ import com.dataBase.automate.dto.AvailabilityDto;
 import com.dataBase.automate.dto.Response;
 import com.dataBase.automate.model.Specialization;
 import java.util.List;
-
+/**
+* Availability Service Feign Client.
+* 
+* @Author Sanjay R
+* @Since 2025-03-18
+*/
 @FeignClient("AVAILABILITY-SERVICE")
 public interface AvailabilityFeignClient {
 	

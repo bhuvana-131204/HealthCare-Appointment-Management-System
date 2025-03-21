@@ -3,11 +3,12 @@ package com.dataBase.automate.service;
 
 import com.dataBase.automate.dto.AppointmentDto;
 import com.dataBase.automate.dto.AvailabilityDto;
-import com.dataBase.automate.dto.Response;
+
 import com.dataBase.automate.exception.AppointmentNotFoundException;
 import com.dataBase.automate.exception.AvailabilityConflictException;
 import com.dataBase.automate.exception.AvailabilityNotFoundException;
 import com.dataBase.automate.feignClients.AvailabilityFeignClient;
+import com.dataBase.automate.feignClients.NotificationFeignClient;
 import com.dataBase.automate.model.Appointment;
 //import com.dataBase.automate.model.Availability;
 import com.dataBase.automate.model.Specialization;
@@ -50,7 +51,7 @@ public class AppointmentService {
     private AppointmentRepository appointmentRepository;
 
    // @Autowired
-    //private AvailabilityRepository availabilityRepository;
+    private NotificationFeignClient notificationFeignClient;
     
    
 
@@ -65,19 +66,13 @@ public class AppointmentService {
             throw new IllegalArgumentException("Availability ID cannot be null");
         }
         
-        //logic for availability , done
         AvailabilityDto availability = null;
-        try {
-
+       
             availability = availabilityFeignClient.viewById(availabilityId).getBody();
-        } catch(Exception e) {
-        	e.printStackTrace();
-        }
-
-        System.out.print(availability);
-        
-
-        Appointment appointment = new Appointment();
+            if(availability == null) {
+            	throw new AvailabilityNotFoundException("Availability is not fetched from client");
+            
+        }Appointment appointment = new Appointment();
         appointment.setTimeSlot(availability.getTimeSlots());
         
         appointment.setStatus(Status.Booked);
@@ -148,7 +143,7 @@ public class AppointmentService {
         appointment.setTimeSlot(availability.getTimeSlots());
         appointment.setDate(availability.getDate());
         appointment.setDoctorId(availability.getDoctorId());
-        notifyAfterUpdate(oldAvailabilityId, newAvailabilityId);
+        notifyAfterUpdate(oldAvailabilityId, newAvailabilityId,appointment);
 
         return appointmentRepository.save(appointment);
     }
@@ -233,6 +228,18 @@ public class AppointmentService {
         // logic for Notification module, done
         availabilityFeignClient.blockTimeSlot(appointment.getAvailabilityId());
         log.info("Booked succesfully");
+        AppointmentDto appointmentDto = null;
+        
+        appointmentDto.setAppointmentId(appointment.getAppointmentId());
+        appointmentDto.setTimeSlot(appointment.getTimeSlot());
+        appointmentDto.setStatus(appointment.getStatus());
+        appointmentDto.setAvailabilityId(appointment.getAvailabilityId());
+        appointmentDto.setPatientId(appointment.getPatientId());
+        appointmentDto.setDoctorId(appointment.getDoctorId());
+        appointmentDto.setDate(appointment.getDate());
+        
+        notificationFeignClient.createNotification(appointmentDto);
+        
 
     }
 
@@ -242,7 +249,7 @@ public class AppointmentService {
      * @param availabilityId the old availability ID
      * @param newAvailabilityId the new availability ID
      */
-    public void notifyAfterUpdate(String availabilityId, String newAvailabilityId) {
+    public void notifyAfterUpdate(String availabilityId, String newAvailabilityId,Appointment appointment) {
         if (availabilityId == null || newAvailabilityId == null) {
             throw new IllegalArgumentException("Availability ID and New Availability ID cannot be null");
             
@@ -254,6 +261,9 @@ public class AppointmentService {
         //logic for Availability module
         availabilityFeignClient.updateAvailability(availabilityId, newAvailabilityId);
         log.info("updated succesfully");
+      
+        
+        notificationFeignClient.onUpdate(appointment.getAppointmentId());
     }
 
     /**
@@ -278,11 +288,13 @@ public class AppointmentService {
      * 
      * @param appointmentId the ID of the appointment
      */
-    public void notifyAfterCompletion(String appointmentId) {
+    public Appointment notifyAfterCompletion(String appointmentId) {
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new AppointmentNotFoundException("Appointment not found for ID: " + appointmentId));
         appointment.setStatus(Status.Completed);
+        appointmentRepository.save(appointment);
         // logic for Consultation module
+        return appointment;
     }
 
     // Availability methods
@@ -376,7 +388,7 @@ List<AvailabilityDto> availabilityList = availabilityFeignClient.getAvailability
         return availabilityList;
     }
     /**
-     * Updates appointment after notification.
+     * Updates appointment after doctor cancels appointment.
      * 
      * @param appointmentId the ID of the appointment
      */
@@ -390,6 +402,18 @@ List<AvailabilityDto> availabilityList = availabilityFeignClient.getAvailability
             Appointment appointment = optionalAppointment.get();
             appointment.setStatus(Status.Cancelled);
             appointmentRepository.save(appointment);
+            
+            AppointmentDto appointmentDto = null;
+            
+            appointmentDto.setAppointmentId(appointment.getAppointmentId());
+            appointmentDto.setTimeSlot(appointment.getTimeSlot());
+            appointmentDto.setStatus(appointment.getStatus());
+            appointmentDto.setAvailabilityId(appointment.getAvailabilityId());
+            appointmentDto.setPatientId(appointment.getPatientId());
+            appointmentDto.setDoctorId(appointment.getDoctorId());
+            appointmentDto.setDate(appointment.getDate());
+            
+            notificationFeignClient.createNotification(appointmentDto);
         } else {
             throw new AppointmentNotFoundException("Appointment for this availability is not found");
         }

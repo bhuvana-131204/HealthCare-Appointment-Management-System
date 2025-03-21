@@ -1,27 +1,30 @@
 package com.dataBase.automate.model;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.UUID;
+
+/**
+* Appointment Table.
+* 
+* @Author Sanjay R
+* @Since 2025-03-18
+*/
+
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Appointment {
     @Id
-    //@GeneratedValue(strategy = GenerationType.IDENTITY)
+    
     @Column(name="appointment_id", nullable = false, unique = true)
     private String appointmentId;
     @Enumerated(EnumType.STRING)
