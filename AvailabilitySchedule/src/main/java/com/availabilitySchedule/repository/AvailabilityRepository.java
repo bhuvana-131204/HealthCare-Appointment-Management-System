@@ -33,12 +33,12 @@ public interface AvailabilityRepository extends JpaRepository<Availability, Stri
 	List<Availability> findByDoctorIdAndDate(String doctorId, LocalDate date);
 
 	/**
-	 * Finds an availability by doctor ID.
+	 * Finds a list of availabilities by doctor ID.
 	 * 
 	 * @param doctorId the ID of the doctor
-	 * @return the availability for the specified doctor
+	 * @return the list of availabilities for the specified doctor
 	 */
-	Availability findByDoctorId(String doctorId);
+	List<Availability> findByDoctorId(String doctorId);
 
 	/**
 	 * Finds a list of availabilities by specialization and date.
@@ -73,8 +73,11 @@ public interface AvailabilityRepository extends JpaRepository<Availability, Stri
 	 * @param specialization the specialization of the doctor
 	 * @param startDate      the start date of the range
 	 * @param endDate        the end date of the range
-	 * @return a list of availabilities for the specified specialization and date range
+	 * @return a list of availabilities for the specified specialization and date
+	 *         range
 	 */
 	List<Availability> findBySpecializationAndDateBetween(Specialization specialization, LocalDate startDate,
 			LocalDate endDate);
+
+	boolean existsByDateBetween(LocalDate nextMonday, LocalDate plusDays);
 }

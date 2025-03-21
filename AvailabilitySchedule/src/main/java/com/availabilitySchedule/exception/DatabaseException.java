@@ -7,10 +7,10 @@ package com.availabilitySchedule.exception;
  * @since 18/02/2025
  */
 public class DatabaseException extends RuntimeException {
-    
-    private static final long serialVersionUID = 1L;
 
-    public DatabaseException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	private static final long serialVersionUID = 1L;
+
+	public DatabaseException(String message, Throwable cause) {
+		super(message, cause);
+	}
 }

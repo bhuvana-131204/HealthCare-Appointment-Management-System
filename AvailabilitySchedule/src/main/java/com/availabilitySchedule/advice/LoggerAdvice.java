@@ -20,28 +20,28 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class LoggerAdvice {
 
-    /**
-     * Pointcut that matches all repositories, services and controllers.
-     */
-    @Pointcut(value = "execution(* com.availabilitySchedule.*.*.*(..))")
-    public void pointCut() {
-    }
+	/**
+	 * Pointcut that matches all repositories, services and controllers.
+	 */
+	@Pointcut(value = "execution(* com.availabilitySchedule.*.*.*(..))")
+	public void pointCut() {
+	}
 
-    /**
-     * Advice that logs method entry and exit.
-     *
-     * @param joinPoint the join point
-     * @return the result of the method execution
-     * @throws Throwable if any error occurs
-     */
-    @Around("pointCut()")
-    public Object applicationLogger(ProceedingJoinPoint joinPoint) throws Throwable {
-        Class<?> targetClass = AopProxyUtils.ultimateTargetClass(joinPoint.getTarget());
-        String className = targetClass.getSimpleName();
-        String methodName = joinPoint.getSignature().getName();
-        log.info("{}::{}: Entry", className, methodName);
-        Object obj = joinPoint.proceed();
-        log.info("{}::{}: Exit", className, methodName);
-        return obj;
-    }
+	/**
+	 * Advice that logs method entry and exit.
+	 *
+	 * @param joinPoint the join point
+	 * @return the result of the method execution
+	 * @throws Throwable if any error occurs
+	 */
+	@Around("pointCut()")
+	public Object applicationLogger(ProceedingJoinPoint joinPoint) throws Throwable {
+		Class<?> targetClass = AopProxyUtils.ultimateTargetClass(joinPoint.getTarget());
+		String className = targetClass.getSimpleName();
+		String methodName = joinPoint.getSignature().getName();
+		log.info("{}::{}: Entry", className, methodName);
+		Object obj = joinPoint.proceed();
+		log.info("{}::{}: Exit", className, methodName);
+		return obj;
+	}
 }

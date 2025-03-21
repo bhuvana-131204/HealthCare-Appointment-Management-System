@@ -7,10 +7,10 @@ package com.availabilitySchedule.exception;
  * @since 18/02/2025
  */
 public class AvailabilityNotFoundException extends RuntimeException {
-    
-    private static final long serialVersionUID = 1L;
 
-    public AvailabilityNotFoundException(String message) {
-        super(message);
-    }
+	private static final long serialVersionUID = 1L;
+
+	public AvailabilityNotFoundException(String message) {
+		super(message);
+	}
 }

@@ -11,8 +11,8 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 
 /**
- * Data Transfer Object for Availability.
- * Converts between Availability entity and DTO.
+ * Data Transfer Object for Availability. Converts between Availability entity
+ * and DTO.
  * 
  * @author Swapnil Rajesh
  * @since 18/02/2025
@@ -21,28 +21,31 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AvailabilityDTO {
-    private String doctorId;
-    private Specialization specialization;
-    private LocalDate date;
-    private Timeslots timeSlots;
+	private String availabilityId;
+	private String doctorId;
+	private Specialization specialization;
+	private LocalDate date;
+	private Timeslots timeSlots;
 
-    public Availability toEntity() {
-        Availability availability = new Availability();
-        availability.setDoctorId(this.doctorId);
-        availability.setSpecialization(this.specialization);
-        availability.setDate(this.date);
-        availability.setTimeSlots(this.timeSlots);
-        availability.setStatus(Status.Available);
-        
-        return availability;
-    }
+	public Availability toEntity() {
+		Availability availability = new Availability();
+		availability.setAvailabilityId(availabilityId);
+		availability.setDoctorId(this.doctorId);
+		availability.setSpecialization(this.specialization);
+		availability.setDate(this.date);
+		availability.setTimeSlots(this.timeSlots);
+		availability.setStatus(Status.Available);
 
-    public static AvailabilityDTO fromEntity(Availability availability) {
-        AvailabilityDTO dto = new AvailabilityDTO();
-        dto.setDoctorId(availability.getDoctorId());
-        dto.setSpecialization(availability.getSpecialization());
-        dto.setDate(availability.getDate());
-        dto.setTimeSlots(availability.getTimeSlots());
-        return dto;
-    }
+		return availability;
+	}
+
+	public static AvailabilityDTO fromEntity(Availability availability) {
+		AvailabilityDTO dto = new AvailabilityDTO();
+		dto.setAvailabilityId(availability.getAvailabilityId());
+		dto.setDoctorId(availability.getDoctorId());
+		dto.setSpecialization(availability.getSpecialization());
+		dto.setDate(availability.getDate());
+		dto.setTimeSlots(availability.getTimeSlots());
+		return dto;
+	}
 }

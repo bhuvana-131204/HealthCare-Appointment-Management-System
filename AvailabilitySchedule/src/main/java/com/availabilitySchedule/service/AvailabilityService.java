@@ -1,18 +1,20 @@
 package com.availabilitySchedule.service;
 
 import com.availabilitySchedule.dto.AvailabilityDTO;
-import com.availabilitySchedule.dto.DoctorDTO;
+import com.availabilitySchedule.dto.DoctorAvailabilityDto;
 import com.availabilitySchedule.exception.AvailabilityNotFoundException;
 import com.availabilitySchedule.exception.DoctorNotFoundException;
 import com.availabilitySchedule.exception.UnavailableException;
+import com.availabilitySchedule.feignClient.DoctorFeignClient;
 import com.availabilitySchedule.model.Availability;
 import com.availabilitySchedule.model.Specialization;
 import com.availabilitySchedule.model.Status;
 import com.availabilitySchedule.model.Timeslots;
 import com.availabilitySchedule.repository.AvailabilityRepository;
 
-import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -35,92 +37,96 @@ import java.util.stream.Collectors;
 public class AvailabilityService {
 
 	private final AvailabilityRepository availabilityRepository;
+	private LocalDate lastRunDate = null;
+	private LocalDate weeklyLastRunDate = null;
 
 	public AvailabilityService(AvailabilityRepository availabilityRepository) {
 		this.availabilityRepository = availabilityRepository;
 	}
+	@Autowired
+	private DoctorFeignClient doctorFeignClient;
 
 	/**
 	 * Initializes availability if the repository is empty.
 	 */
-	@PostConstruct
-	public void initializeAvailability() {
-		if (availabilityRepository.count() == 0) {
-			log.info("Initializing availability for the first time.");
-			updateAvailabilityForWeek();
-		}
-	}
+//	@PostConstruct
+//	public void initializeAvailability() {
+//		if (availabilityRepository.count() == 0) {
+//			log.info("Initializing availability for the first time.");
+//			updateAvailabilityForWeek();
+//			updatePastDates();
+//		}
+//	}
 
-	/**
-	 * Scheduled task to check and reset availability at midnight every day.
-	 */
-	@Scheduled(cron = "0 0 0 * * ?") // Runs at midnight every day
-	public void checkAndResetAvailability() {
-		LocalDate currentDate = LocalDate.now();
-		DayOfWeek dayOfWeek = currentDate.getDayOfWeek();
+	@Scheduled(cron = "0 * * * * ?") // Runs every minute
+    public void checkAndInitializeNextWeekAvailability() {
+        LocalDate currentDate = LocalDate.now();
+        DayOfWeek dayOfWeek = currentDate.getDayOfWeek();
 
-		// Check if it's the start of a new week (Monday)
-		if (dayOfWeek == DayOfWeek.MONDAY) {
-			log.info("Resetting availability for the new week.");
-			resetAvailability();
-		}
-	}
+        // Check if it's between Friday and Monday and the method hasn't run yet today
+        if ((dayOfWeek == DayOfWeek.FRIDAY || dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY || dayOfWeek == DayOfWeek.MONDAY) 
+                && (weeklyLastRunDate == null || !weeklyLastRunDate.isEqual(currentDate))) {
+            log.info("Initializing availability for the new week.");
+            updateAvailabilityForWeek();
+            weeklyLastRunDate = currentDate; // Update the last run date
+        }
 
-	/**
-	 * Marks current week's availabilities as unavailable and updates availability
-	 * for the new week.
-	 */
-	private void resetAvailability() {
-		log.info("Marking current week's availabilities as unavailable.");
-		List<Availability> currentWeekAvailabilities = availabilityRepository.findAll();
-		for (Availability availability : currentWeekAvailabilities) {
-			availability.setStatus(Status.Unavailable);
-			availabilityRepository.save(availability);
-		}
+        // Reset the last run date after Monday
+        if (dayOfWeek == DayOfWeek.TUESDAY) {
+            weeklyLastRunDate = null; // Reset the last run date
+        }
+    }
 
-		log.info("Updating availability for the new week.");
-		updateAvailabilityForWeek();
-	}
-
-	/**
-	 * Updates availability for the upcoming week.
-	 */
 	private void updateAvailabilityForWeek() {
-		List<DoctorDTO> doctors = List.of(new DoctorDTO("1", "Doctor A", Specialization.Cardiology),
-				new DoctorDTO("2", "Doctor B", Specialization.Nephrology),
-				new DoctorDTO("3", "Doctor C", Specialization.General));
+        List<DoctorAvailabilityDto> doctors = doctorFeignClient.getAllDoctors();
+        
+        LocalDate nextMonday = LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.MONDAY));
 
-		LocalDate nextMonday = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        // Check if availability for next week already exists
+        boolean nextWeekExists = availabilityRepository.existsByDateBetween(nextMonday, nextMonday.plusDays(4));
 
-		for (DoctorDTO doctor : doctors) {
-			for (int i = 0; i < 5; i++) {
-				LocalDate date = nextMonday.plusDays(i);
+        if (!nextWeekExists) {
+            for (DoctorAvailabilityDto doctor : doctors) {
+                for (int i = 0; i < 5; i++) {
+                    LocalDate date = nextMonday.plusDays(i);
 
-				for (Timeslots timeslot : Timeslots.values()) {
-					AvailabilityDTO dto = new AvailabilityDTO(doctor.getId(), doctor.getSpecialization(), date,
-							timeslot);
-					Availability availability = dto.toEntity();
-					availabilityRepository.save(availability);
-				}
-			}
-		}
-		log.info("Availability updated for the week starting from {}", nextMonday);
-	}
+                    for (Timeslots timeslot : Timeslots.values()) {
+                        AvailabilityDTO dto = new AvailabilityDTO(null, doctor.getDoctorId(), doctor.getSpecialization(), date, timeslot);
+                        Availability availability = dto.toEntity();
+                        availabilityRepository.save(availability);
+                    }
+                }
+            }
+            log.info("Availability updated for the week starting from {}", nextMonday);
+        } else {
+            log.info("Availability for the week starting from {} already exists. No new entries added.", nextMonday);
+        }
+    }
 
 	/**
 	 * Updates past dates to unavailable.
 	 */
-	@PostConstruct
-	public void updatePastDates() {
-		log.info("Updating past dates to unavailable.");
-		LocalDate currentDate = LocalDate.now();
-		List<Availability> pastAvailabilities = availabilityRepository.findByDateBefore(currentDate);
+	@Scheduled(cron = "0 * * * * ?") // Runs every minute
+    public void checkAndUpdatePastDates() {
+        LocalDate currentDate = LocalDate.now();
 
-		for (Availability availability : pastAvailabilities) {
-			availability.setStatus(Status.Unavailable);
-			availabilityRepository.save(availability);
-		}
-	}
+        // Check if the method hasn't run yet today
+        if (lastRunDate == null || !lastRunDate.isEqual(currentDate)) {
+            log.info("Updating past dates to unavailable.");
+            updatePastDates();
+            lastRunDate = currentDate; // Update the last run date
+        }
+    }
+
+    public void updatePastDates() {
+        LocalDate currentDate = LocalDate.now();
+        List<Availability> pastAvailabilities = availabilityRepository.findByDateBefore(currentDate);
+
+        for (Availability availability : pastAvailabilities) {
+            availability.setStatus(Status.Unavailable);
+            availabilityRepository.save(availability);
+        }
+    }
 
 	/**
 	 * Updates the status of availability entities.
@@ -289,7 +295,7 @@ public class AvailabilityService {
 
 		if (availability.getStatus() != Status.Available) {
 			log.error("Time slot with ID: {} is not available", availabilityId);
-			throw new UnavailableException("Time slot is not available for blocking");
+			throw new UnavailableException("Time slot is not available");
 		}
 		return availability;
 	}

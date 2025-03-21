@@ -7,11 +7,11 @@ package com.availabilitySchedule.exception;
  * @since 18/02/2025
  */
 
-public class UnavailableException extends RuntimeException{
+public class UnavailableException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
 
 	public UnavailableException(String message) {
-        super(message);
-    }
+		super(message);
+	}
 }

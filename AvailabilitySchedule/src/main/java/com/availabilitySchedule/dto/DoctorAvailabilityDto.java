@@ -14,8 +14,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DoctorDTO {
-    private String id;
-    private String name;
-    private Specialization specialization;
+public class DoctorAvailabilityDto {
+	private String doctorId;
+	private Specialization specialization;
 }
