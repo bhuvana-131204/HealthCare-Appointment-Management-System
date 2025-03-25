@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 public interface NotificationClient {
 	
 	
-	@PutMapping("/notifications/onCompletion/{appointmentId}")
-	public void onCompletion (@PathVariable String appointmentId);
+	@PutMapping("/api/notification/onCompletion/{appointmentId}")
+	public void onCompletetion (@PathVariable String appointmentId);
 
 }

@@ -5,8 +5,6 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.healthcare.management.client.NotificationClient;
-//import com.healthcare.management.client.NotificationClient;
 import com.healthcare.management.dao.AppointmentDAO;
 import com.healthcare.management.dao.ConsultationDAO;
 import com.healthcare.management.dto.ConsultationDto;
@@ -27,9 +25,6 @@ public class ConsultationService {
 	
 	@Autowired
 	private AppointmentDAO appointmentDAO;
-	
-	@Autowired
-	private NotificationClient notificationClient;
 	/**
 	 * Retrieves all consultation records.
 	 * 
@@ -80,16 +75,8 @@ public class ConsultationService {
 	        consultation.setAppointmentId(consultationDto.getAppointmentId());
 	        consultation.setNotes(consultationDto.getNotes());
 	        consultation.setPrescription(consultationDto.getPrescription());
-	        
-	        Consultation savedConsultation = consultationDAO.save(consultation);
 
-	        // Notify the notification service
-	        notificationClient.onCompletion(consultationDto.getAppointmentId());
-
-	        return savedConsultation;
-	        
-	        
-	        
+	        return consultationDAO.save(consultation);
 	    }
 	
 	
