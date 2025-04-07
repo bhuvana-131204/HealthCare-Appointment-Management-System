@@ -25,17 +25,17 @@ public class SecurityConfig {
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
 		return http.csrf(customizer -> customizer.disable()).authorizeHttpRequests(request -> request
-//                        .requestMatchers("")
-//                        .permitAll()
-				.requestMatchers("/consultation",
-						"/consultation/create",
-						"/consultation/appointment/{appId}",
-						"/consultation/update/consul/{conId}",
-						"/consultation/delete/consul/{conId}",
-						"/history/create",
-						"/history/patient/{patientId}",
-						"/history/delete/patient/{patientId}")
-				.authenticated().anyRequest().permitAll())
+                        .requestMatchers("/consultation/**","/history/**").permitAll()
+                     
+//				.requestMatchers("/consultation",
+//						"/consultation/create",
+//						"/consultation/appointment/{appId}",
+//						"/consultation/update/consul/{conId}",
+//						"/consultation/delete/consul/{conId}",
+//						"/history/create",
+//						"/history/patient/{patientId}",
+//						"/history/delete/patient/{patientId}")
+				.anyRequest().authenticated())
 				.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class).build();
 
 	}
