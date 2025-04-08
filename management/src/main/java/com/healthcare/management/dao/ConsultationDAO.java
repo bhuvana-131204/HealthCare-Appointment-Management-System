@@ -27,6 +27,8 @@ public interface ConsultationDAO extends JpaRepository<Consultation, String> {
 	
 	@Query("SELECT c from Consultation c where c.appointmentId=:appointmentId")
 	public List<Consultation> findConsultationDetailsByAppointmentId(@Param("appointmentId") String appointment_Id);
+	
+	Optional<Consultation> findConsultationByAppointmentId(String appointmentId);
 
 	/**
 	 * Retrieves a consultation record by consultation ID.
@@ -35,5 +37,7 @@ public interface ConsultationDAO extends JpaRepository<Consultation, String> {
 	 * @return Optional<Consultation> - An optional containing the consultation record if found, or empty if not found.
 	 */
 	Optional<Consultation>findByConsultationId(String consultationId);
+	
+	 boolean existsByAppointmentId(String appointmentId);
 	
 }	

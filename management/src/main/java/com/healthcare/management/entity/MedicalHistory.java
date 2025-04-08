@@ -26,8 +26,11 @@ public class MedicalHistory {
 	//@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private String historyId;	
 	
+	
+	
 	@Column(name = "Patient_id")
 	private String patientId;
+	
 	
 	
 	@Column(name="DiseaseHistory")

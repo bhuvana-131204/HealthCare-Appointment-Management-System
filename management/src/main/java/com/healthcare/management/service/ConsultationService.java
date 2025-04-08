@@ -5,16 +5,19 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.healthcare.management.client.NotificationClient;
+//import com.healthcare.management.client.NotificationClient;
 //import com.healthcare.management.client.NotificationClient;
 import com.healthcare.management.dao.AppointmentDAO;
 import com.healthcare.management.dao.ConsultationDAO;
+import com.healthcare.management.dao.HistoryDAO;
 import com.healthcare.management.dto.ConsultationDto;
 import com.healthcare.management.entity.Appointment;
 import com.healthcare.management.entity.Consultation;
+import com.healthcare.management.entity.MedicalHistory;
 import com.healthcare.management.exception.ConsultationAlreadyExistsException;
 import com.healthcare.management.exception.NoAppointmentFoundException;
 import com.healthcare.management.exception.NoConsultationDetailsFoundException;
+import com.healthcare.management.exception.NoHistoryFoundException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,8 +31,12 @@ public class ConsultationService {
 	@Autowired
 	private AppointmentDAO appointmentDAO;
 	
+//	@Autowired
+//	private NotificationClient notificationClient;
+	
 	@Autowired
-	private NotificationClient notificationClient;
+	private HistoryDAO historyDAO;
+	
 	/**
 	 * Retrieves all consultation records.
 	 * 
@@ -64,7 +71,7 @@ public class ConsultationService {
 	 * @throws ConsultationAlreadyExistsException - If a consultation already exists for the given appointment ID.
 	 */
 	
-	 public Consultation createConsultation(ConsultationDto consultationDto) {
+	 /*public Consultation createConsultation(ConsultationDto consultationDto) {
 	        log.info("Creating new Consultation Record...");
 	        log.info("Received ConsultationDto: {}", consultationDto);
 
@@ -82,7 +89,7 @@ public class ConsultationService {
 	        consultation.setPrescription(consultationDto.getPrescription());
 	        
 	        Consultation savedConsultation = consultationDAO.save(consultation);
-
+       
 	        // Notify the notification service
 	        notificationClient.onCompletion(consultationDto.getAppointmentId());
 
@@ -90,7 +97,49 @@ public class ConsultationService {
 	        
 	        
 	        
+	    }*/
+	public Consultation createConsultation(ConsultationDto consultationDto) {
+	    log.info("Creating new Consultation Record...");
+	    log.info("Received ConsultationDto: {}", consultationDto);
+
+	    boolean consultationExists = consultationDAO.existsByAppointmentId(consultationDto.getAppointmentId());
+	    if (consultationExists) {
+	        throw new ConsultationAlreadyExistsException("A consultation already exists for Appointment ID: " + consultationDto.getAppointmentId());
 	    }
+
+	  
+	    Consultation consultation = new Consultation();
+	    consultation.setAppointmentId(consultationDto.getAppointmentId());
+	    consultation.setNotes(consultationDto.getNotes());
+	    consultation.setPrescription(consultationDto.getPrescription());
+
+	    Consultation savedConsultation = consultationDAO.save(consultation);
+
+	    //notificationClient.onCompletion(consultationDto.getAppointmentId());
+
+	    return savedConsultation;
+	}
+
+	 
+	/* private void updateMedicalHistory(String patientId, String consultationNotes) {
+		    log.info("Updating medical history for patient ID: {}", patientId);
+
+		    // Fetch patient's medical history
+		    List<MedicalHistory> medicalHistories = historyDAO.getMedicalHistoryByPatientId(patientId);
+
+		    if (medicalHistories.isEmpty()) {
+		        throw new NoHistoryFoundException("No Medical History found for Patient ID: " + patientId);
+		    }
+
+		    // Append new notes to existing history
+		    for (MedicalHistory history : medicalHistories) {
+		        String updatedHistory = history.getHealthHistory() + "\nDoctor Notes: " + consultationNotes;
+		        history.setHealthHistory(updatedHistory);
+		        historyDAO.save(history);
+		    }
+
+		    log.info("Medical history updated successfully.");
+		}*/
 	
 	
 	 /**
@@ -107,7 +156,11 @@ public class ConsultationService {
 	
 	public List<Consultation>findConDetailsByAppId(String appointmentId){
 		log.info("Retrieving consultation details filtered by appointment ID...");
-		return consultationDAO.findConsultationDetailsByAppointmentId(appointmentId);
+		List<Consultation> consultationList = consultationDAO.findConsultationDetailsByAppointmentId(appointmentId);
+		if(consultationList.isEmpty()) {
+			throw new NoConsultationDetailsFoundException("No Consultation found for Appointment ID: " + appointmentId);
+		}
+		return consultationList;
 	}
 	
 //	public Consultation updateConsultationDetailsById(int consultationId,Consultation consultationDetails) {
@@ -137,6 +190,21 @@ public class ConsultationService {
         return consultationDAO.save(consultation);
     }
 	
+	/** Updates consultation by appointment ID */
+	public Consultation updateConsultationByAppointmentId(String appointmentId, ConsultationDto consultationDto) {
+	    log.info("Updating consultation for appointment ID: {}", appointmentId);
+	    
+	    Consultation consultation = consultationDAO.findConsultationByAppointmentId(appointmentId)
+	        .orElseThrow(() -> new NoConsultationDetailsFoundException("No consultation found for appointment ID: " + appointmentId));
+
+	    consultation.setNotes(consultationDto.getNotes());
+	    consultation.setPrescription(consultationDto.getPrescription());
+
+	    log.info("Successfully updated the consultation details.");
+	    return consultationDAO.save(consultation); // ✅ Save the updated consultation record
+	}
+
+	
 	/**
 	 * Deletes a consultation record by consultation ID.
 	 * 
@@ -149,4 +217,20 @@ public class ConsultationService {
 		consultationDAO.delete(consultation);
 		log.info("Successfully removed the consultation entry");
 	}
+	
+	
+	
+	/** Delete consultation details by Appointment ID */
+	public void deleteConsultationByAppointmentId(String appointmentId) {
+	    log.info("Attempting to delete consultation for Appointment ID: {}", appointmentId);
+	    
+	    Consultation consultation = consultationDAO.findConsultationByAppointmentId(appointmentId)
+	        .orElseThrow(() -> new NoConsultationDetailsFoundException("No consultation found for appointment ID: " + appointmentId));
+
+	    consultationDAO.delete(consultation);
+	    log.info("Successfully deleted consultation for Appointment ID: {}", appointmentId);
+	}
+
+	
+	
 }

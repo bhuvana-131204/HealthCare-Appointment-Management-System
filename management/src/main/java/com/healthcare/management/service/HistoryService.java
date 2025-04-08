@@ -94,6 +94,7 @@ public class HistoryService {
         historyDto.setHistoryId(medicalHistory.getHistoryId());
         historyDto.setHealthHistory(medicalHistory.getHealthHistory());
         historyDto.setPatientId(medicalHistory.getPatientId());
+        
         return historyDto;
     
     }
@@ -124,6 +125,10 @@ public class HistoryService {
 	
 	 public List<HistoryDto> getHistoryByPatientId(String patientId) {
 	        log.info("Retrieving medical history details of patient with patient id " + patientId);
+	        
+	        Patient patient = patientDAO.findById(patientId)
+	                .orElseThrow(() -> new NoPatientFoundException("No Patient exists with ID: " + patientId));
+	        
 	        List<MedicalHistory> medicalHistories = historyDAO.getMedicalHistoryByPatientId(patientId);
 	        
 	        if (medicalHistories.isEmpty()) {
@@ -136,6 +141,7 @@ public class HistoryService {
 	            historyDto.setHistoryId(medicalHistory.getHistoryId());
 	            historyDto.setHealthHistory(medicalHistory.getHealthHistory());
 	            historyDto.setPatientId(medicalHistory.getPatientId());
+	            historyDto.setPatientName(patient.getName());
 	            historyDtos.add(historyDto);
 	        }
 	        
@@ -167,6 +173,9 @@ public class HistoryService {
         
         return historyDto;
     }*/
+	 
+	 
+
 	
 	/**
 	 * Deletes a medical history record by patient ID.

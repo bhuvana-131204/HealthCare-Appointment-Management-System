@@ -7,12 +7,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-//import org.springframework.web.context.request.RequestAttributes;
-//import org.springframework.web.context.request.RequestContextHolder;
-//import org.springframework.web.context.request.ServletRequestAttributes;
-//
-//import feign.RequestInterceptor;
-//import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.HttpMethod;
+
 
 @Configuration
 @EnableWebSecurity
@@ -25,8 +21,8 @@ public class SecurityConfig {
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
 		return http.csrf(customizer -> customizer.disable()).authorizeHttpRequests(request -> request
-                        .requestMatchers("/consultation/**","/history/**").permitAll()
-                     
+                        .requestMatchers("/consultation/**","/history/**","/consultation/delete/appointment/**").permitAll()
+                       
 //				.requestMatchers("/consultation",
 //						"/consultation/create",
 //						"/consultation/appointment/{appId}",
@@ -35,7 +31,8 @@ public class SecurityConfig {
 //						"/history/create",
 //						"/history/patient/{patientId}",
 //						"/history/delete/patient/{patientId}")
-				.anyRequest().authenticated())
+                
+                .anyRequest().authenticated())
 				.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class).build();
 
 	}
