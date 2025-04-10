@@ -27,7 +27,7 @@ public class HistoryDto {
     @NotNull(message="Patient ID cannot be null")
     private String patientId; 
     
-    private String patientName;
+    //private String patientName;
     
     @Size(max=500,message="Medical history do not exceed more than 500 characters")
     private String healthHistory;

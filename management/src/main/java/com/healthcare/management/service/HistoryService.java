@@ -12,8 +12,8 @@ import com.healthcare.management.entity.MedicalHistory;
 import com.healthcare.management.entity.Patient;
 import com.healthcare.management.exception.NoHistoryFoundException;
 import com.healthcare.management.exception.NoPatientFoundException;
-
 import lombok.extern.slf4j.Slf4j;
+
 /**
  * HistoryService is a service class that provides methods for managing medical history records.
  * It includes methods for creating, retrieving, updating, and deleting medical history records.
@@ -66,8 +66,8 @@ public class HistoryService {
 	    medicalHistory.setHealthHistory(historyDTO.getHealthHistory());
 
 	    // Check if the patient exists
-	    Patient patient = patientDAO.findById(historyDTO.getPatientId())
-	            .orElseThrow(() -> new NoPatientFoundException("No Patient exists with the ID " + historyDTO.getPatientId()));
+//	    Patient patient = patientDAO.findById(historyDTO.getPatientId())
+//	            .orElseThrow(() -> new NoPatientFoundException("No Patient exists with the ID " + historyDTO.getPatientId()));
 	    // medicalHistory.setPatientId(patient); 
 
 	    MedicalHistory savedMedicalHistory = historyDAO.save(medicalHistory);
@@ -76,6 +76,7 @@ public class HistoryService {
 	    historyDto.setHistoryId(savedMedicalHistory.getHistoryId());
 	    historyDto.setPatientId(savedMedicalHistory.getPatientId());
 	    historyDto.setHealthHistory(savedMedicalHistory.getHealthHistory());
+	    log.info("Medical history created successfully!");
 	    return historyDto;
 	}
 	/**
@@ -126,8 +127,8 @@ public class HistoryService {
 	 public List<HistoryDto> getHistoryByPatientId(String patientId) {
 	        log.info("Retrieving medical history details of patient with patient id " + patientId);
 	        
-	        Patient patient = patientDAO.findById(patientId)
-	                .orElseThrow(() -> new NoPatientFoundException("No Patient exists with ID: " + patientId));
+//	        Patient patient = patientDAO.findById(patientId)
+//	                
 	        
 	        List<MedicalHistory> medicalHistories = historyDAO.getMedicalHistoryByPatientId(patientId);
 	        
@@ -141,7 +142,6 @@ public class HistoryService {
 	            historyDto.setHistoryId(medicalHistory.getHistoryId());
 	            historyDto.setHealthHistory(medicalHistory.getHealthHistory());
 	            historyDto.setPatientId(medicalHistory.getPatientId());
-	            historyDto.setPatientName(patient.getName());
 	            historyDtos.add(historyDto);
 	        }
 	        
